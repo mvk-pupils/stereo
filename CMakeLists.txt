@@ -6,3 +6,5 @@ project(stereo)
 add_library(stereo SHARED src/lib.cpp)
 add_executable(stereo-world src/main.cpp)
 
+add_subdirectory(libs/glfw)
+

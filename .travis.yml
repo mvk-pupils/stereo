@@ -4,6 +4,12 @@ os:
   - linux
   - osx
 
+addons:
+  # Install dependencies for Linux
+  apt:
+    packages:
+      - libxrandr-dev
+
 before_script:
   - mkdir build
   - cd build

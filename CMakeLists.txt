@@ -55,7 +55,7 @@ find_library(OPENVR_LIBRARY
     NO_DEFAULT_PATH
     NO_CMAKE_FIND_ROOT_PATH
 )
-set(OPENVR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../openvr-1.9.16/headers)
+set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 
 
 # Stereo Library

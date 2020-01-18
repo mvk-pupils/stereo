@@ -71,6 +71,8 @@ target_include_directories(stereo
     PUBLIC ${OPENVR_INCLUDE_DIR}
 )
 target_link_libraries(stereo glfw ${OPENVR_LIBRARY})
+add_dependencies(stereo glfw)
+
 
 # Stereo Executable
 add_executable(stereo-world src/main.cpp)
@@ -78,4 +80,5 @@ target_include_directories(stereo-world
     PUBLIC include 
 )
 target_link_libraries(stereo-world stereo)
+add_dependencies(stereo-world stereo glfw)
 

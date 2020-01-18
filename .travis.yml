@@ -22,5 +22,5 @@ before_script:
   - cmake ..
 
 script:
-  - make
+  - cmake --build .
 

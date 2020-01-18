@@ -64,21 +64,33 @@ set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 
 
 # Stereo Library
-add_library(stereo STATIC src/lib.cpp)
-target_include_directories(stereo 
-    PUBLIC include 
+set(STEREO_SOURCES
+    src/lib.cpp
+)
+
+set(STEREO_INCLUDES
+    PUBLIC include
     PUBLIC ${GLFW_INCLUDE_DIR}
     PUBLIC ${OPENVR_INCLUDE_DIR}
 )
+
+add_library(stereo_obj OBJECT ${STEREO_SOURCES})
+target_include_directories(stereo_obj ${STEREO_INCLUDES})
+
+add_library(stereo SHARED $<TARGET_OBJECTS:stereo_obj>)
+add_library(stereo_static STATIC $<TARGET_OBJECTS:stereo_obj>)
+
 target_link_libraries(stereo glfw ${OPENVR_LIBRARY})
-add_dependencies(stereo glfw)
+target_link_libraries(stereo_static glfw ${OPENVR_LIBRARY})
 
 
 # Stereo Executable
-add_executable(stereo-world src/main.cpp)
+set(STEREO_BIN_SOURCES
+    src/main.cpp
+)
+add_executable(stereo-world ${STEREO_BIN_SOURCES})
 target_include_directories(stereo-world 
     PUBLIC include 
 )
-target_link_libraries(stereo-world stereo)
-add_dependencies(stereo-world stereo glfw)
+target_link_libraries(stereo-world stereo_static)
 

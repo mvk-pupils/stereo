@@ -1,26 +1,55 @@
 cmake_minimum_required(VERSION 3.11)
+project(stereo)
 
 set(CMAKE_CXX_STANDARD 11)
+
+# Try to guess the platform architecture.
+if(CMAKE_SIZEOF_VOID_P MATCHES 8)
+    set(PLATFORM 64)
+else()
+    set(PLATFORM 32)
+endif()
+
 
 # GLFW
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
 add_subdirectory(libs/glfw)
+set(GLFW_INCLUDE_DIR libs/glfw/include)
+
+
+# OpenVR
+if(WIN32)
+  set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
+endif()
+
+find_library(OPENVR_LIBRARY
+    NAMES
+        openvr_api
+    PATHS
+        libs/openvr/bin
+        libs/openvr/lib
+    PATH_SUFFIXES
+        osx32
+        linux64
+        ${WINDOWS_PATH_SUFFIXES}
+    NO_DEFAULT_PATH
+    NO_CMAKE_FIND_ROOT_PATH
+)
+set(OPENVR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../openvr-1.9.16/headers)
 
 
 # Stereo Library
-project(stereo)
 add_library(stereo SHARED src/lib.cpp)
 target_include_directories(stereo 
     PUBLIC include 
-    PUBLIC libs/glfw/include
+    PUBLIC ${GLFW_INCLUDE_DIR}
+    PUBLIC ${OPENVR_INCLUDE_DIR}
 )
-target_link_libraries(stereo glfw)
+target_link_libraries(stereo glfw ${OPENVR_LIBRARY})
 
 # Stereo Executable
-project(stereo-world)
 add_executable(stereo-world src/main.cpp)
 target_include_directories(stereo-world 
     PUBLIC include 

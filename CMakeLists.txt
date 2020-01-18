@@ -64,7 +64,7 @@ set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 
 
 # Stereo Library
-add_library(stereo SHARED src/lib.cpp)
+add_library(stereo STATIC src/lib.cpp)
 target_include_directories(stereo 
     PUBLIC include 
     PUBLIC ${GLFW_INCLUDE_DIR}

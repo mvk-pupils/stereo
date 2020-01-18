@@ -9,6 +9,10 @@ addons:
   apt:
     packages:
       - libxrandr-dev
+      - libxinerama-dev
+      - libx11-dev
+      - libxcursor-dev
+      - libxi-dev
 
 before_script:
   - mkdir build

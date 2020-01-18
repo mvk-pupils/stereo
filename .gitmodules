@@ -1,6 +1,6 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
-	url = https://github.com/mvk-pupils/glfw
+	url = https://github.com/mvk-pupils/glfw.git
 [submodule "libs/openvr"]
 	path = libs/openvr
-	url = git@github.com:mvk-pupils/openvr.git
+	url = https://github.com/mvk-pupils/openvr.git

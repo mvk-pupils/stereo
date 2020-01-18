@@ -3,6 +3,7 @@ language: cpp
 os:
   - linux
   - osx
+  - windows
 
 addons:
   # Install dependencies for Linux

@@ -1,13 +1,27 @@
+#include <iostream>
 #include "lib.hpp"
 #include <algorithm> 
 #include "util.hpp"
+#include <openvr.h>
 
 void setup_window_callbacks(Window* window);
+
+// Temporary test of OpenVR
+void test_vr_init() {
+  vr::HmdError error;
+  auto vr_context = vr::VR_Init(&error, vr::EVRApplicationType::VRApplication_Scene);
+
+  if (error) {
+    std::cerr << "Failed to init OpenVR: " << vr::VR_GetVRInitErrorAsEnglishDescription(error) << std::endl;
+  }
+}
 
 Window Window::open(int width, int height) {
   if (!glfwInit()) {
     throw 1;
   }
+
+  test_vr_init();
 
   Window window;
   window.handle = glfwCreateWindow(width, height, "Stereo", NULL, NULL);

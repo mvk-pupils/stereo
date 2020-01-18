@@ -74,11 +74,11 @@ set(STEREO_INCLUDES
     PUBLIC ${OPENVR_INCLUDE_DIR}
 )
 
-add_library(stereo_obj OBJECT ${STEREO_SOURCES})
-target_include_directories(stereo_obj ${STEREO_INCLUDES})
+add_library(stereo SHARED ${STEREO_SOURCES})
+add_library(stereo_static STATIC ${STEREO_SOURCES})
 
-add_library(stereo SHARED $<TARGET_OBJECTS:stereo_obj>)
-add_library(stereo_static STATIC $<TARGET_OBJECTS:stereo_obj>)
+target_include_directories(stereo ${STEREO_INCLUDES})
+target_include_directories(stereo_static ${STEREO_INCLUDES})
 
 target_link_libraries(stereo glfw ${OPENVR_LIBRARY})
 target_link_libraries(stereo_static glfw ${OPENVR_LIBRARY})

@@ -24,7 +24,14 @@ addons:
 before_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - CMAKE_FLAGS=""
+  - |-
+      case $TRAVIS_OS_NAME in
+        windows)
+          CMAKE_FLAGS="${CMAKE_FLAGS} -D BUILD_DOCUMENTATION=OFF"
+          ;;
+      esac
+  - cmake .. ${CMAKE_FLAGS}
 
 script:
   - cmake --build .

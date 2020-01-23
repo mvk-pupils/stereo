@@ -3,6 +3,7 @@ project(stereo)
 
 set(CMAKE_CXX_STANDARD 11)
 
+option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
 
 # Pull down submodules
 find_package(Git QUIET)
@@ -27,6 +28,29 @@ if(CMAKE_SIZEOF_VOID_P MATCHES 8)
 else()
     set(PLATFORM 32)
 endif()
+
+
+# Build the documentation
+if (BUILD_DOCUMENTATION)
+    find_package(Doxygen)
+    if (DOXYGEN_FOUND)
+        # request to configure the file
+        message(STATUS "Doxygen build started")
+
+        set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
+        set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+        configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
+
+        add_custom_target(doc_doxygen ALL
+            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM)
+    else (DOXYGEN_FOUND)
+        message(FATAL_ERROR "Doxygen need to be installed to generate the doxygen documentation")
+    endif (DOXYGEN_FOUND)
+endif (BUILD_DOCUMENTATION)
 
 
 # OpenGL

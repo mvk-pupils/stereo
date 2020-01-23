@@ -4,3 +4,6 @@
 [submodule "libs/openvr"]
 	path = libs/openvr
 	url = https://github.com/mvk-pupils/openvr.git
+[submodule "libs/OpenXR-SDK"]
+	path = libs/OpenXR-SDK
+	url = https://github.com/mvk-pupils/OpenXR-SDK

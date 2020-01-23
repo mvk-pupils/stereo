@@ -3,7 +3,7 @@ project(stereo)
 
 set(CMAKE_CXX_STANDARD 11)
 
-option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
+option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" ON)
 
 # Pull down submodules
 find_package(Git QUIET)

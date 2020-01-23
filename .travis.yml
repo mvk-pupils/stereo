@@ -15,6 +15,11 @@ addons:
       - libxcursor-dev
       - libxi-dev
       - libgl1-mesa-dev
+      - doxygen
+  # Install dependencies for MacOS
+  homebrew:
+    packages:
+      - doxygen
 
 before_script:
   - mkdir build

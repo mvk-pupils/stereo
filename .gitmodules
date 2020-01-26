@@ -7,3 +7,6 @@
 [submodule "libs/OpenXR-SDK"]
 	path = libs/OpenXR-SDK
 	url = https://github.com/mvk-pupils/OpenXR-SDK
+[submodule "libs/glew"]
+	path = libs/glew
+	url = https://github.com/mvk-pupils/glew.git

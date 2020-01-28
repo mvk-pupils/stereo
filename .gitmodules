@@ -10,3 +10,6 @@
 [submodule "libs/glew"]
 	path = libs/glew
 	url = https://github.com/mvk-pupils/glew.git
+[submodule "libs/glew-2.1.0"]
+	path = libs/glew-2.1.0
+	url = https://github.com/mvk-pupils/glew-2.1.0.git

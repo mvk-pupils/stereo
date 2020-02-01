@@ -66,6 +66,10 @@ add_subdirectory(libs/glfw)
 set(GLFW_INCLUDE_DIR libs/glfw/include)
 
 
+# GLAD
+add_subdirectory(libs/glad)
+
+
 # OpenVR
 if(WIN32)
   set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
@@ -89,13 +93,16 @@ set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 
 # Stereo Library
 set(STEREO_SOURCES
-    src/lib.cpp
+    src/stereo.cpp
 )
 
 set(STEREO_INCLUDES
     PUBLIC include
-    PUBLIC ${GLFW_INCLUDE_DIR}
-    PUBLIC ${OPENVR_INCLUDE_DIR}
+    PUBLIC ${GLAD_INCLUDE_DIRS}
+)
+
+set(STEREO_LIBRARIES
+    ${GLAD_LIBRARIES}
 )
 
 add_library(stereo SHARED ${STEREO_SOURCES})
@@ -104,8 +111,8 @@ add_library(stereo_static STATIC ${STEREO_SOURCES})
 target_include_directories(stereo ${STEREO_INCLUDES})
 target_include_directories(stereo_static ${STEREO_INCLUDES})
 
-target_link_libraries(stereo glfw ${OPENVR_LIBRARY})
-target_link_libraries(stereo_static glfw ${OPENVR_LIBRARY})
+target_link_libraries(stereo ${STEREO_LIBRARIES})
+target_link_libraries(stereo_static ${STEREO_LIBRARIES})
 
 
 # Stereo Executable
@@ -115,6 +122,7 @@ set(STEREO_BIN_SOURCES
 add_executable(stereo-world ${STEREO_BIN_SOURCES})
 target_include_directories(stereo-world 
     PUBLIC include 
+    PUBLIC ${GLFW_INCLUDE_DIR}
 )
-target_link_libraries(stereo-world stereo_static)
+target_link_libraries(stereo-world glfw stereo_static)
 

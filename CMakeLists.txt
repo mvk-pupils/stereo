@@ -95,6 +95,7 @@ set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 set(STEREO_SOURCES
     src/stereo.cpp
     src/shader.cpp
+    src/mesh.cpp
 )
 
 set(STEREO_INCLUDES

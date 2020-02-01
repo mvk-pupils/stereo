@@ -47,6 +47,8 @@ Window Window::open(int width, int height) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
+  glfwWindowHint(GLFW_SAMPLES, 8);
+
   window.handle = glfwCreateWindow(width, height, "Stereo Example Executable", NULL, NULL);
 
   window.setup_window_callbacks();

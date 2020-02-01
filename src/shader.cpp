@@ -88,3 +88,7 @@ Program::Program(GLuint program) {
       }
     );
 }
+
+void Program::use() {
+  glUseProgram(*this->program);
+}

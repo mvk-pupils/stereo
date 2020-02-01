@@ -12,5 +12,7 @@ class Program {
 
   public:
     static Program compile(const char* vertex_source, const char* fragment_source);
+
+    void use();
 };
 

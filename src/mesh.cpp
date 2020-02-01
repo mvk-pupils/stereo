@@ -1,6 +1,8 @@
 #include "mesh.hpp"
 #include "log.hpp"
 
+#include <stddef.h>
+
 Mesh::Mesh() {
   this->vertex_count = std::make_shared<GLuint>(0);
   this->index_count = std::make_shared<GLuint>(0);

@@ -9,16 +9,20 @@
 const char* VERTEX_SOURCE = R"(
 #version 330 core
 
+layout (location = 0) in vec3 position;
+
 void main() {
-  
+  gl_Position = vec4(position, 1.0);
 }
 )";
 
 const char* FRAGMENT_SOURCE = R"(
 #version 330 core
 
-void main() {
+out vec4 out_color;
 
+void main() {
+  out_color = vec4(0.0, 1.0, 1.0, 1.0);
 }
 )";
 

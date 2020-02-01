@@ -2,9 +2,9 @@
 #include <algorithm> 
 #include <exception>
 
-#include <GLFW/glfw3.h>
-
 #include <stereo.hpp>
+
+#include <GLFW/glfw3.h>
 
 #include "util.hpp"
 

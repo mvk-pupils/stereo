@@ -1,5 +1,6 @@
 #include "stereo.hpp"
 #include "shader.hpp"
+#include "log.hpp"
 
 #include <stdexcept>
 #include <stdio.h>
@@ -48,8 +49,4 @@ Stereo::Stereo(Program program): program(program) {}
 void Stereo::draw() {
   glClearColor(0.3, 0.6, 0.3, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
-}
-
-Program::~Program() {
-  glDeleteProgram(this->program);
 }

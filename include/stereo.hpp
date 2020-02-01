@@ -1,5 +1,4 @@
 #pragma once
-#include "log.hpp"
 #include "shader.hpp"
 
 class Stereo {

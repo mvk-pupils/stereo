@@ -1,5 +1,6 @@
 #include "shader.hpp"
 #include "util.hpp"
+#include "log.hpp"
 
 #include <string>
 #include <stdexcept>
@@ -19,6 +20,8 @@ void compile_shader(GLuint shader) {
     glGetShaderInfoLog(shader, log_size, &length, &info_log[0]);
 
     glDeleteShader(shader);
+
+    ERROR("%s", &info_log[0]);
 
     throw std::runtime_error(info_log);
   }
@@ -43,6 +46,8 @@ GLuint link_program(GLuint vertex, GLuint fragment) {
     glGetProgramInfoLog(program, log_size, &length, &info_log[0]);
 
     glDeleteProgram(program);
+
+    ERROR("%s", &info_log[0]);
 
     throw std::runtime_error(info_log);
   }
@@ -74,5 +79,12 @@ Program Program::compile(const char* vertex_source, const char* fragment_source)
 }
 
 Program::Program(GLuint program) {
-  this->program = program;
+  DEBUG("Creating shader progam (%d)", program);
+  this->program = std::shared_ptr<GLuint>(
+      new GLuint(program), 
+      [](GLuint* p) { 
+        DEBUG("Deleting shader program (%d)", *p); 
+        glDeleteProgram(*p);
+      }
+    );
 }

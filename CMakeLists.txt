@@ -68,7 +68,7 @@ set(GLFW_INCLUDE_DIR libs/glfw/include)
 
 # GLAD
 add_subdirectory(libs/glad)
-
+set_property(TARGET ${GLAD_LIBRARIES} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # OpenVR
 if(WIN32)

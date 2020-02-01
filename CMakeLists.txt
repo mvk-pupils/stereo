@@ -67,7 +67,7 @@ set(GLFW_INCLUDE_DIR libs/glfw/include)
 
 
 # GLAD
-add_subdirectory(libs/glad)
+add_subdirectory(libs/glad-generated)
 set_property(TARGET ${GLAD_LIBRARIES} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # OpenVR

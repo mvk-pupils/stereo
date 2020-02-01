@@ -16,3 +16,9 @@
 [submodule "libs/glad"]
 	path = libs/glad
 	url = https://github.com/mvk-pupils/glad
+[submodule "libs/--name"]
+	path = libs/--name
+	url = https://github.com/mvk-pupils/glad-generated
+[submodule "glad-generated"]
+	path = libs/glad-generated
+	url = https://github.com/mvk-pupils/glad-generated

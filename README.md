@@ -12,6 +12,18 @@ $ cmake ..
 $ cmake --build .
 ```
 
+## Run code (Windows)
+
+```
+$ cd Debug
+$ ./stereo-world.exe
+```
+
+## Run code (Unix)
+
+```
+./stereo-world.exe
+```
 
 ### Disabling Doxygen
 

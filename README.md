@@ -12,3 +12,12 @@ $ cmake ..
 $ cmake --build .
 ```
 
+
+### Disabling Doxygen
+
+If you don't want to build the documentation run cmake with:
+
+```
+$ cmake .. -D BUILD_DOCUMENTATION=OFF
+```
+

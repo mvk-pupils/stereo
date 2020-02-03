@@ -44,7 +44,7 @@ if (BUILD_DOCUMENTATION)
 
         add_custom_target(doc_doxygen ALL
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM)
     else (DOXYGEN_FOUND)
@@ -122,9 +122,8 @@ set(STEREO_BIN_SOURCES
     src/main.cpp
 )
 add_executable(stereo-world ${STEREO_BIN_SOURCES})
-target_include_directories(stereo-world 
-    PUBLIC include 
+target_include_directories(stereo-world
+    PUBLIC include
     PUBLIC ${GLFW_INCLUDE_DIR}
 )
 target_link_libraries(stereo-world glfw stereo_static)
-

@@ -90,9 +90,15 @@ find_library(OPENVR_LIBRARY
 )
 set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 
+# Resources
+file(
+    COPY ${CMAKE_CURRENT_SOURCE_DIR}/img/hqimg.png
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/img
+)
 
 # Stereo Library
 set(STEREO_SOURCES
+    src/stb_image.cpp
     src/stereo.cpp
     src/shader.cpp
     src/mesh.cpp

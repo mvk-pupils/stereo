@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <algorithm> 
+#include <algorithm>
 #include <exception>
 
 #include <stereo.hpp>
@@ -149,7 +149,9 @@ int main() {
     printf("Bye\n");
   } catch (std::exception& e) {
     printf("Error: %s\n", e.what());
+  } catch (const char* s) {
+    printf("Program error: %s\n", s);
   } catch (...) {
-    printf("There was an error\n");
+    printf("There was an error.\n");
   }
 }

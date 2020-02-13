@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#include "stb_image.h"
+
 Mesh::Mesh() {
   this->vertex_count = std::make_shared<GLuint>(0);
   this->index_count = std::make_shared<GLuint>(0);
@@ -20,7 +22,7 @@ Mesh Mesh::create() {
   Mesh mesh;
   mesh.vertex_array = std::shared_ptr<GLuint>(
       vertex_array,
-      [](GLuint* v){ 
+      [](GLuint* v){
         DEBUG("Deleting vertex array (%d)", *v);
         glDeleteVertexArrays(1, v);
       }
@@ -28,7 +30,7 @@ Mesh Mesh::create() {
 
   mesh.vertex_buffer = std::shared_ptr<GLuint>(
       vertex_buffer,
-      [](GLuint* v){ 
+      [](GLuint* v){
         DEBUG("Deleting vertex buffer (%d)", *v);
         glDeleteBuffers(1, v);
       }
@@ -36,7 +38,7 @@ Mesh Mesh::create() {
 
   mesh.element_buffer = std::shared_ptr<GLuint>(
       element_buffer,
-      [](GLuint* v){ 
+      [](GLuint* v){
         DEBUG("Deleting element buffer (%d)", *v);
         glDeleteBuffers(1, v);
       }
@@ -54,20 +56,28 @@ void Mesh::configure_buffers() {
 
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(
-      0, 
-      sizeof(Vertex::position) / sizeof(float), 
-      GL_FLOAT, 
-      GL_FALSE, 
+      0,
+      sizeof(Vertex::position) / sizeof(float),
+      GL_FLOAT,
+      GL_FALSE,
       sizeof(Vertex), (GLvoid *)offsetof(Vertex, position)
     );
 
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(
-      1, 
-      sizeof(Vertex::color) / sizeof(float), 
-      GL_FLOAT, 
-      GL_FALSE, 
+      1,
+      sizeof(Vertex::color) / sizeof(float),
+      GL_FLOAT,
+      GL_FALSE,
       sizeof(Vertex), (GLvoid *)offsetof(Vertex, color)
+    );
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(
+      2,
+      sizeof(Vertex::texture_coord) / sizeof(float),
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex), (GLvoid *)offsetof(Vertex, texture_coord)
     );
 }
 
@@ -87,11 +97,26 @@ void Mesh::set_indices(GLuint count, GLuint* indices) {
   *this->index_count = count;
 }
 
+void Mesh::load_texture(const char *path) {
+  glGenTextures(1, &this->texture);
+  glBindTexture(GL_TEXTURE_2D, this->texture);
+  int width, height, nrChannels;
+  unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+    throw "Failed to load texture";
+  }
+  stbi_image_free(data);
+}
+
 void Mesh::draw() {
   glBindVertexArray(*this->vertex_array);
   glBindBuffer(GL_ARRAY_BUFFER, *this->vertex_buffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *this->element_buffer);
 
+  glBindTexture(GL_TEXTURE_2D, this->texture);
+
   glDrawElements(GL_TRIANGLES, *this->index_count, GL_UNSIGNED_INT, 0);
 }
-

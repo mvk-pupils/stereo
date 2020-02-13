@@ -41,7 +41,7 @@ class Window {
     /// rendered.
     void swap_buffers();
 
-    /// @params key The key to poll.
+    /// @param key The key to poll.
     /// @returns Whether or not the key is pressed. 
     bool is_key_down(int key);
 

@@ -102,6 +102,7 @@ set(STEREO_SOURCES
     src/stereo.cpp
     src/shader.cpp
     src/mesh.cpp
+    src/texture.cpp
 )
 
 set(STEREO_INCLUDES

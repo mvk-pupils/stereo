@@ -3,8 +3,6 @@
 
 #include <stddef.h>
 
-#include "stb_image.h"
-
 Mesh::Mesh() {
   this->vertex_count = std::make_shared<GLuint>(0);
   this->index_count = std::make_shared<GLuint>(0);
@@ -97,26 +95,10 @@ void Mesh::set_indices(GLuint count, GLuint* indices) {
   *this->index_count = count;
 }
 
-void Mesh::load_texture(const char *path) {
-  glGenTextures(1, &this->texture);
-  glBindTexture(GL_TEXTURE_2D, this->texture);
-  int width, height, nrChannels;
-  unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    throw "Failed to load texture";
-  }
-  stbi_image_free(data);
-}
-
 void Mesh::draw() {
   glBindVertexArray(*this->vertex_array);
   glBindBuffer(GL_ARRAY_BUFFER, *this->vertex_buffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *this->element_buffer);
-
-  glBindTexture(GL_TEXTURE_2D, this->texture);
 
   glDrawElements(GL_TRIANGLES, *this->index_count, GL_UNSIGNED_INT, 0);
 }

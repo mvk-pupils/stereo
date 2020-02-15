@@ -50,9 +50,14 @@ Stereo Stereo::init() {
   INFO("Using OpenGL: %s", glGetString(GL_VERSION));
   INFO("Using GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-  auto program = Program::compile(VERTEX_SOURCE, FRAGMENT_SOURCE);
-  auto mesh = Mesh::create();
+  return Stereo();
+}
 
+Stereo::Stereo() : 
+  program(Program::compile(VERTEX_SOURCE, FRAGMENT_SOURCE)),
+  texture(Texture::load("img/hqimg.png")),
+  mesh(Mesh::create())
+{
   Vertex vertices[] = {
     {{0.0, 0.5, 0.0}, {1.0, 0.0, 0.0, 1.0}, {0.47, 0.07}},
     {{0.5, -0.5, 0.0}, {0.0, 1.0, 0.0, 1.0}, {0.75, 0.81}},
@@ -63,21 +68,17 @@ Stereo Stereo::init() {
     0, 1, 2
   };
 
-  mesh.set_vertices(sizeof(vertices)/sizeof(vertices[0]), vertices);
-  mesh.set_indices(sizeof(indices)/sizeof(indices[0]), indices);
-
-  mesh.load_texture("img/hqimg.png");
-
-  Stereo stereo = Stereo(program, mesh);
-  return stereo;
+  this->mesh.set_vertices(sizeof(vertices)/sizeof(vertices[0]), vertices);
+  this->mesh.set_indices(sizeof(indices)/sizeof(indices[0]), indices);
 }
-
-Stereo::Stereo(Program program, Mesh mesh): program(program), mesh(mesh) {}
 
 void Stereo::draw() {
   glClearColor(0.2, 0.2, 0.2, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
 
+  glBindTexture(GL_TEXTURE_2D, 0);
+
   this->program.use();
+  this->texture.bind();
   this->mesh.draw();
 }

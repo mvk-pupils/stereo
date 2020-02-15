@@ -38,11 +38,6 @@ class Mesh {
     /// The number of indices in the mesh.
     std::shared_ptr<GLuint> index_count;
 
-    // TODO: move this to its own class and make sure that the texture is
-    // deallocated when all handles are destroyed.
-    /// The texture associated with the mesh.
-    GLuint texture;
-
   public:
     /// Create a new, empty, mesh.
     static Mesh create();
@@ -52,10 +47,6 @@ class Mesh {
 
     /// Upload a list of indices to the mesh.
     void set_indices(GLuint count, GLuint* indices);
-
-    // TODO: move to its own class.
-    /// Load a texture from the specified path.
-    void load_texture(const char* path);
 
     /// Draw the mesh.
     void draw();

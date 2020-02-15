@@ -39,7 +39,7 @@ vec3 axis_rotate(vec3 axis, vec3 coord, float angle) {
       axis.y*axis.z*inv_cos - axis.x*rot_sin,
       rot_cos + axis.z*axis.z*inv_cos));
   return rotate * coord;
-};
+}
 
 void main() {
   vec3 axis = vec3(-1,1,-1) / sqrt(3);

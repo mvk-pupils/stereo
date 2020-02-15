@@ -70,9 +70,13 @@ Program Program::compile(const char* vertex_source, const char* fragment_source)
   glShaderSource(vertex_shader, 1, &vertex_source, NULL);
   glShaderSource(fragment_shader, 1, &fragment_source, NULL);
 
+  DEBUG("Compiling vertex shader...");
   compile_shader(vertex_shader);
+
+  DEBUG("Compiling fragment shader...");
   compile_shader(fragment_shader);
 
+  DEBUG("Linking shader program...");
   auto program = link_program(vertex_shader, fragment_shader);
 
   return Program(program);

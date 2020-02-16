@@ -77,12 +77,12 @@ endif()
 
 find_library(OPENVR_LIBRARY
     NAMES
-        openvr_api
+        openvr_api OpenVR
     PATHS
         libs/openvr/bin
         libs/openvr/lib
     PATH_SUFFIXES
-        osx32
+        osx64
         linux64
         ${WINDOWS_PATH_SUFFIXES}
     NO_DEFAULT_PATH
@@ -128,9 +128,19 @@ target_link_libraries(stereo_static ${STEREO_LIBRARIES})
 set(STEREO_BIN_SOURCES
     src/main.cpp
 )
-add_executable(stereo-world ${STEREO_BIN_SOURCES})
-target_include_directories(stereo-world
+
+set(STEREO_BIN_INCLUDES
     PUBLIC include
     PUBLIC ${GLFW_INCLUDE_DIR}
+    PUBLIC ${OPENVR_INCLUDE_DIR}
 )
-target_link_libraries(stereo-world glfw stereo_static)
+
+set(STEREO_BIN_LIBRARIES
+    stereo_static
+    glfw
+    ${OPENVR_LIBRARY}
+)
+
+add_executable(stereo-world ${STEREO_BIN_SOURCES})
+target_include_directories(stereo-world ${STEREO_BIN_INCLUDES})
+target_link_libraries(stereo-world ${STEREO_BIN_LIBRARIES})

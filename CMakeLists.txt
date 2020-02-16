@@ -72,7 +72,7 @@ set_property(TARGET ${GLAD_LIBRARIES} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # OpenVR
 if(WIN32)
-  set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
+    set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
 endif()
 
 find_library(OPENVR_LIBRARY
@@ -91,16 +91,16 @@ find_library(OPENVR_LIBRARY
 set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 
 if(WIN32)
-		find_path(OPENVR_DLL 
-				openvr_api.dll 
-				PATHS libs/openvr/bin 
-				PATH_SUFFIXES ${WINDOWS_PATH_SUFFIXES}
-				)
-		set(OPENVR_DLL "${OPENVR_DLL}/openvr_api.dll")
-	file(
-			COPY ${OPENVR_DLL}
-			DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-			)
+    find_path(OPENVR_DLL 
+        openvr_api.dll 
+        PATHS libs/openvr/bin 
+        PATH_SUFFIXES ${WINDOWS_PATH_SUFFIXES}
+    )
+    set(OPENVR_DLL "${OPENVR_DLL}/openvr_api.dll")
+    file(
+        COPY ${OPENVR_DLL}
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+    )
 endif()
 
 # Resources

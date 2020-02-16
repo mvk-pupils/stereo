@@ -5,6 +5,7 @@
 #include <stereo.hpp>
 
 #include <GLFW/glfw3.h>
+#include <openvr.h>
 
 #include "util.hpp"
 
@@ -133,6 +134,14 @@ int main() {
 
     auto stereo = Stereo::init();
 
+    vr::HmdError error;
+    auto openvr = vr::VR_Init(&error, vr::VRApplication_Scene);
+
+    if (error) {
+      auto message = VR_GetVRInitErrorAsEnglishDescription(error);
+      printf("ERROR: %s\n", message);
+    }
+
     while (window.is_open()) {
       window.poll_events();
 
@@ -155,3 +164,4 @@ int main() {
     printf("There was an error.\n");
   }
 }
+

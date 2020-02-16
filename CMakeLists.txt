@@ -90,6 +90,19 @@ find_library(OPENVR_LIBRARY
 )
 set(OPENVR_INCLUDE_DIR libs/openvr/headers)
 
+if(WIN32)
+		find_path(OPENVR_DLL 
+				openvr_api.dll 
+				PATHS libs/openvr/bin 
+				PATH_SUFFIXES ${WINDOWS_PATH_SUFFIXES}
+				)
+		set(OPENVR_DLL "${OPENVR_DLL}/openvr_api.dll")
+	file(
+			COPY ${OPENVR_DLL}
+			DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+			)
+endif()
+
 # Resources
 file(
     COPY ${CMAKE_CURRENT_SOURCE_DIR}/img/hqimg.png

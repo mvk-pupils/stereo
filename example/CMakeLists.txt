@@ -49,6 +49,8 @@ endif()
 # Stereo Executable
 set(STEREO_BIN_SOURCES
     src/main.cpp
+    src/cli.cpp
+    src/window.cpp
 )
 
 set(STEREO_BIN_INCLUDES
@@ -67,5 +69,3 @@ set(STEREO_BIN_LIBRARIES
 add_executable(stereo-world ${STEREO_BIN_SOURCES})
 target_include_directories(stereo-world ${STEREO_BIN_INCLUDES})
 target_link_libraries(stereo-world ${STEREO_BIN_LIBRARIES})
-
-

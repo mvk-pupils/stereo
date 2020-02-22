@@ -58,50 +58,9 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 
-# GLFW
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(libs/glfw)
-set(GLFW_INCLUDE_DIR libs/glfw/include)
-
-
 # GLAD
 add_subdirectory(libs/glad-generated)
 set_property(TARGET ${GLAD_LIBRARIES} PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-# OpenVR
-if(WIN32)
-    set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
-endif()
-
-find_library(OPENVR_LIBRARY
-    NAMES
-        openvr_api OpenVR
-    PATHS
-        libs/openvr/bin
-        libs/openvr/lib
-    PATH_SUFFIXES
-        osx64
-        linux64
-        ${WINDOWS_PATH_SUFFIXES}
-    NO_DEFAULT_PATH
-    NO_CMAKE_FIND_ROOT_PATH
-)
-set(OPENVR_INCLUDE_DIR libs/openvr/headers)
-
-if(WIN32)
-    find_path(OPENVR_DLL 
-        openvr_api.dll 
-        PATHS libs/openvr/bin 
-        PATH_SUFFIXES ${WINDOWS_PATH_SUFFIXES}
-    )
-    set(OPENVR_DLL "${OPENVR_DLL}/openvr_api.dll")
-    file(
-        COPY ${OPENVR_DLL}
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-    )
-endif()
 
 # Resources
 file(
@@ -118,8 +77,9 @@ set(STEREO_SOURCES
     src/texture.cpp
 )
 
+set(STEREO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(STEREO_INCLUDES
-    PUBLIC include
+    PUBLIC ${STEREO_INCLUDE_DIR}
     PUBLIC ${GLAD_INCLUDE_DIRS}
 )
 
@@ -137,23 +97,10 @@ target_link_libraries(stereo ${STEREO_LIBRARIES})
 target_link_libraries(stereo_static ${STEREO_LIBRARIES})
 
 
-# Stereo Executable
-set(STEREO_BIN_SOURCES
-    src/main.cpp
+# Add example executable directories
+add_subdirectory(example)
+set_target_properties(stereo-world PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(STEREO_BIN_INCLUDES
-    PUBLIC include
-    PUBLIC ${GLFW_INCLUDE_DIR}
-    PUBLIC ${OPENVR_INCLUDE_DIR}
-)
 
-set(STEREO_BIN_LIBRARIES
-    stereo_static
-    glfw
-    ${OPENVR_LIBRARY}
-)
-
-add_executable(stereo-world ${STEREO_BIN_SOURCES})
-target_include_directories(stereo-world ${STEREO_BIN_INCLUDES})
-target_link_libraries(stereo-world ${STEREO_BIN_LIBRARIES})

@@ -125,16 +125,16 @@ void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int ac
   }
 }
 
-enum Display {
-  /// Display to the VR headset.
-  VR,
+enum DisplayKind {
   /// Display to the monitor.
   MONITOR,
+  /// Display to the VR headset.
+  VR,
 };
 
 struct CliArguments {
   /// Which display to use for output.
-  Display display;
+  DisplayKind display = MONITOR;
 };
 
 void print_usage() {
@@ -149,10 +149,10 @@ OPTIONS:
   puts(USAGE);
 }
 
+/// Parse the CLI arguments into a struct. Will cause the program to exit
+/// (intentionally) on some inputs.
 CliArguments parse_cli_arguments(int argc, const char* argv[]) {
   CliArguments options;
-
-  options.display = MONITOR;
 
   for (int i = 1; i < argc; i++) {
     auto arg = std::string(argv[i]);

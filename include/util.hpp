@@ -1,5 +1,8 @@
 #include <vector>
 
+/// Mark a variable as being unused. This can be used to silence warnings.
+#define UNUSED(x) (void)(x)
+
 namespace util {
   /// Remove an element in the vector by swapping it withe the last element of
   /// the vector and shrink its size by one (1). Note that the order of the

@@ -55,8 +55,8 @@ Stereo Stereo::init() {
 
 Stereo::Stereo() : 
   program(Program::compile(VERTEX_SOURCE, FRAGMENT_SOURCE)),
-  texture(Texture::load("img/hqimg.png")),
-  mesh(Mesh::create())
+  mesh(Mesh::create()),
+  texture(Texture::load("img/hqimg.png"))
 {
   Vertex vertices[] = {
     {{0.0, 0.5, 0.0}, {1.0, 0.0, 0.0, 1.0}, {0.47, 0.07}},

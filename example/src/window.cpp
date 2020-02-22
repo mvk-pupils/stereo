@@ -58,6 +58,9 @@ void Window::setup_window_callbacks() {
 }
 
 void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int action, int mode) {
+  UNUSED(scancode);
+  UNUSED(mode);
+
   auto window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfw_window));
   auto& keys = window->pressed_keys;
 

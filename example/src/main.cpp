@@ -4,21 +4,23 @@
 
 #include <stereo.hpp>
 
-
 #include "util.hpp"
+#include "log.hpp"
 #include "cli.hpp"
 #include "window.hpp"
 
 #include <openvr.h>
 
 int main(int argc, const char* argv[]) {
-  auto arguments = parse_cli_arguments(argc, argv);
+  parse_cli_arguments(argc, argv);
 
   try {
     printf("Stereo Example Executable (SEE)\n\n");
 
     auto window = Window::open(800, 600);
     window.make_context_current();
+
+    INFO("hello");
 
     auto stereo = Stereo::init();
 

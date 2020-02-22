@@ -96,11 +96,23 @@ target_include_directories(stereo_static ${STEREO_INCLUDES})
 target_link_libraries(stereo ${STEREO_LIBRARIES})
 target_link_libraries(stereo_static ${STEREO_LIBRARIES})
 
+target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo")
+
 
 # Add example executable directories
 add_subdirectory(example)
+target_compile_definitions(stereo PRIVATE LOG_SOURCE_MODULE="stereo-world")
 set_target_properties(stereo-world PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 
+# Enable all warnings and treat them as errors
+if(MSVC)
+    set(WARNING_FLAGS PRIVATE /W4 /WX)
+else()
+    set(WARNING_FLAGS PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
+target_compile_options(stereo ${WARNING_FLAGS})
+target_compile_options(stereo-world ${WARNING_FLAGS})

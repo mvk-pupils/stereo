@@ -125,7 +125,72 @@ void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int ac
   }
 }
 
-int main() {
+enum Display {
+  /// Display to the VR headset.
+  VR,
+  /// Display to the monitor.
+  MONITOR,
+};
+
+struct CliArguments {
+  /// Which display to use for output.
+  Display display;
+};
+
+void print_usage() {
+  const char* USAGE = R"(USAGE: 
+    stereo-world <OPTIONS>
+
+OPTIONS:
+    -h                            print help information.
+    -d, --display [monitor|vr]    set the display target (default = monitor)
+  )";
+
+  puts(USAGE);
+}
+
+CliArguments parse_cli_arguments(int argc, const char* argv[]) {
+  CliArguments options;
+
+  options.display = MONITOR;
+
+  for (int i = 1; i < argc; i++) {
+    auto arg = std::string(argv[i]);
+
+    if (arg == "-d" || arg == "--display") {
+      const char* invalid_arg = "expected one of 'monitor' or 'vr', found '%s'\n";
+      i++;
+      if (i >= argc) {
+        printf(invalid_arg, "");
+        print_usage();
+        exit(1);
+      }
+
+      auto param = std::string(argv[i]);
+
+      if (param == "monitor") options.display = MONITOR;
+      else if (param == "vr") options.display = VR;
+      else { 
+        printf(invalid_arg, param.c_str());
+        print_usage(); 
+        exit(1);
+      }
+    } else if (arg == "-h" || arg == "--help") {
+      print_usage();
+      exit(0);
+    } else {
+      printf("unrecognized option: %s\n", arg.c_str());
+      print_usage();
+      exit(1);
+    }
+  }
+
+  return options;
+}
+
+int main(int argc, const char* argv[]) {
+  auto arguments = parse_cli_arguments(argc, argv);
+
   try {
     printf("Stereo Example Executable (SEE)\n\n");
 
@@ -134,6 +199,7 @@ int main() {
 
     auto stereo = Stereo::init();
 
+    /*
     vr::HmdError error;
     auto openvr = vr::VR_Init(&error, vr::VRApplication_Scene);
 
@@ -141,6 +207,7 @@ int main() {
       auto message = VR_GetVRInitErrorAsEnglishDescription(error);
       printf("ERROR: %s\n", message);
     }
+    */
 
     while (window.is_open()) {
       window.poll_events();

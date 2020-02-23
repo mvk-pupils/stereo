@@ -44,7 +44,7 @@ int main(int argc, const char* argv[]) {
   try {
     printf("Stereo Example Executable (SEE)\n\n");
 
-    vr::IVRSystem* openvr;
+    vr::IVRSystem* openvr = nullptr;
 
     switch (arguments.display) {
       case MONITOR:

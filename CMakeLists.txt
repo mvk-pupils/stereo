@@ -75,6 +75,7 @@ set(STEREO_SOURCES
     src/shader.cpp
     src/mesh.cpp
     src/texture.cpp
+    src/framebuffer.cpp
 )
 
 set(STEREO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -88,13 +89,13 @@ set(STEREO_LIBRARIES
 )
 
 add_library(stereo SHARED ${STEREO_SOURCES})
-add_library(stereo_static STATIC ${STEREO_SOURCES})
+add_library(stereo-static STATIC ${STEREO_SOURCES})
 
 target_include_directories(stereo ${STEREO_INCLUDES})
-target_include_directories(stereo_static ${STEREO_INCLUDES})
+target_include_directories(stereo-static ${STEREO_INCLUDES})
 
 target_link_libraries(stereo ${STEREO_LIBRARIES})
-target_link_libraries(stereo_static ${STEREO_LIBRARIES})
+target_link_libraries(stereo-static ${STEREO_LIBRARIES})
 
 target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo")
 
@@ -115,4 +116,6 @@ else()
 endif()
 
 target_compile_options(stereo ${WARNING_FLAGS})
+target_compile_options(stereo-static ${WARNING_FLAGS})
 target_compile_options(stereo-world ${WARNING_FLAGS})
+

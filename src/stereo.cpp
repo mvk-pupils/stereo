@@ -85,7 +85,7 @@ StereoView Stereo::draw(StereoViewport viewport) {
   this->left.bind();
 
   glViewport(0, 0, this->left.width(), this->left.height());
-  glClearColor(0.77, 0.62, 0.78, 1.0);
+  glClearColor(0.77f, 0.62f, 0.78f, 1.0f);
   this->render_scene(viewport.left);
 
   this->left.unbind();
@@ -95,7 +95,7 @@ StereoView Stereo::draw(StereoViewport viewport) {
   this->right.bind();
 
   glViewport(0, 0, this->right.width(), this->right.height());
-  glClearColor(0.2, 0.2, 0.2, 1.0);
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   this->render_scene(viewport.right);
 
   this->right.unbind();

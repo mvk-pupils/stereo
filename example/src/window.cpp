@@ -36,6 +36,10 @@ void Window::close() {
   this->handle = nullptr;
 }
 
+void Window::get_inner_size(int* width, int* height) {
+  glfwGetFramebufferSize(this->handle, width, height);
+}
+
 void Window::poll_events() {
   glfwPollEvents();
 }

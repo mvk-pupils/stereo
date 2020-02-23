@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <stdio.h>
 
+#include "util.hpp"
 #include "gl.h"
 
 const char* VERTEX_SOURCE = R"(
@@ -56,7 +57,9 @@ Stereo Stereo::init() {
 Stereo::Stereo() : 
   program(Program::compile(VERTEX_SOURCE, FRAGMENT_SOURCE)),
   mesh(Mesh::create()),
-  texture(Texture::load("img/hqimg.png"))
+  texture(Texture::load("img/hqimg.png")),
+  left(Framebuffer::create(600, 600)),
+  right(Framebuffer::create(600, 600))
 {
   Vertex vertices[] = {
     {{0.0, 0.5, 0.0}, {1.0, 0.0, 0.0, 1.0}, {0.47, 0.07}},
@@ -72,13 +75,62 @@ Stereo::Stereo() :
   this->mesh.set_indices(sizeof(indices)/sizeof(indices[0]), indices);
 }
 
-void Stereo::draw() {
-  glClearColor(0.2, 0.2, 0.2, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  glBindTexture(GL_TEXTURE_2D, 0);
+StereoView Stereo::draw(StereoViewport viewport) {
+  UNUSED(viewport);
 
   this->program.use();
   this->texture.bind();
+
+  // Left eye
+  this->left.bind();
+
+  auto left = viewport.left;
+  glViewport(0, 0, this->left.width(), this->left.height());
+  glClearColor(0.77, 0.62, 0.78, 1.0);
+  this->render_scene(left);
+
+  this->left.unbind();
+
+
+  // Right eye
+  this->right.bind();
+
+  auto right = viewport.right;
+  glViewport(0, 0, this->right.width(), this->right.height());
+  glClearColor(0.2, 0.2, 0.2, 1.0);
+  this->render_scene(right);
+
+  this->right.unbind();
+
+
+  // Blit to screen
+  this->left.bind(GL_READ_FRAMEBUFFER);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glBlitFramebuffer(
+      0, 0, this->left.width(), this->left.height(), 
+      0, 0, left.width, left.height, 
+      GL_COLOR_BUFFER_BIT, GL_LINEAR
+    );
+
+  this->right.bind(GL_READ_FRAMEBUFFER);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glBlitFramebuffer(
+      0, 0, this->right.width(), this->right.height(), 
+      left.width, 0, left.width + right.width, right.height, 
+      GL_COLOR_BUFFER_BIT, GL_LINEAR
+    );
+
+
+  StereoView view;
+  view.left.texture = this->left.get_color_texture();
+  view.right.texture = this->right.get_color_texture();
+
+  return view;
+}
+
+void Stereo::render_scene(Viewport viewport) {
+  UNUSED(viewport);
+  glClear(GL_COLOR_BUFFER_BIT);
+
   this->mesh.draw();
 }

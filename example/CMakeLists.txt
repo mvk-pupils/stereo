@@ -61,7 +61,7 @@ set(STEREO_BIN_INCLUDES
 )
 
 set(STEREO_BIN_LIBRARIES
-    stereo_static
+    stereo-static
     glfw
     ${OPENVR_LIBRARY}
 )

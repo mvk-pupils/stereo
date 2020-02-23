@@ -26,6 +26,12 @@ class Window {
     /// Close the window.
     void close();
 
+    /// Stores the dimensions of the window's content (the framebuffer) in the
+    /// input parameters.
+    /// @param width The width of the window.
+    /// @param height The height of the window.
+    void get_inner_size(int* width, int* height);
+
     /// Collect all events that occured since the last time this method was
     /// called.
     void poll_events();

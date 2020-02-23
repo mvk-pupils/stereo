@@ -62,9 +62,9 @@ Stereo::Stereo() :
   right(Framebuffer::create(600, 600))
 {
   Vertex vertices[] = {
-    {{0.0, 0.5, 0.0}, {1.0, 0.0, 0.0, 1.0}, {0.47, 0.07}},
-    {{0.5, -0.5, 0.0}, {0.0, 1.0, 0.0, 1.0}, {0.75, 0.81}},
-    {{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0, 1.0}, {0.19, 0.81}},
+    {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.47f, 0.07f}},
+    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {0.75f, 0.81f}},
+    {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {0.19f, 0.81f}},
   };
 
   GLuint indices[] = {
@@ -84,10 +84,9 @@ StereoView Stereo::draw(StereoViewport viewport) {
   // Left eye
   this->left.bind();
 
-  auto left = viewport.left;
   glViewport(0, 0, this->left.width(), this->left.height());
   glClearColor(0.77, 0.62, 0.78, 1.0);
-  this->render_scene(left);
+  this->render_scene(viewport.left);
 
   this->left.unbind();
 
@@ -95,10 +94,9 @@ StereoView Stereo::draw(StereoViewport viewport) {
   // Right eye
   this->right.bind();
 
-  auto right = viewport.right;
   glViewport(0, 0, this->right.width(), this->right.height());
   glClearColor(0.2, 0.2, 0.2, 1.0);
-  this->render_scene(right);
+  this->render_scene(viewport.right);
 
   this->right.unbind();
 
@@ -108,7 +106,7 @@ StereoView Stereo::draw(StereoViewport viewport) {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBlitFramebuffer(
       0, 0, this->left.width(), this->left.height(), 
-      0, 0, left.width, left.height, 
+      0, 0, viewport.left.width, viewport.left.height, 
       GL_COLOR_BUFFER_BIT, GL_LINEAR
     );
 
@@ -116,7 +114,7 @@ StereoView Stereo::draw(StereoViewport viewport) {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBlitFramebuffer(
       0, 0, this->right.width(), this->right.height(), 
-      left.width, 0, left.width + right.width, right.height, 
+      viewport.left.width, 0, viewport.left.width + viewport.right.width, viewport.right.height, 
       GL_COLOR_BUFFER_BIT, GL_LINEAR
     );
 

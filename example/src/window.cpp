@@ -1,6 +1,8 @@
 #include "window.hpp"
 #include <util.hpp>
 
+#include <algorithm>
+
 Window Window::open(int width, int height) {
   if (!glfwInit()) {
     throw 1;
@@ -78,5 +80,3 @@ void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int ac
     }
   }
 }
-
-

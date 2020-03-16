@@ -1,5 +1,6 @@
 #include "window.hpp"
 #include <util.hpp>
+#include <algorithm>
 
 Window::Window() {
 	this->handle = nullptr;
@@ -83,5 +84,3 @@ void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int ac
     }
   }
 }
-
-

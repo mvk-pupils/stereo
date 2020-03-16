@@ -53,6 +53,11 @@ int main(int argc, const char* argv[]) {
       case VR:
         // TODO: display the in the VR headset
         openvr = init_openvr();
+		if (!vr::VRCompositor())
+		{
+			ERROR("Compositor initialization failed. See log file for details\n");
+			return 1;
+		}
         break;
     }
 
@@ -76,11 +81,13 @@ int main(int argc, const char* argv[]) {
       auto views = stereo.draw(viewport);
       if (openvr) {
         // Taken from the OpenVR OpenGL example:
-        vr::Texture_t left = {(void*)(uintptr_t)views.left.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-        vr::Texture_t right = {(void*)(uintptr_t)views.right.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+        vr::Texture_t left = { (void*)(uintptr_t)views.left.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+        vr::Texture_t right = { (void*)(uintptr_t)views.right.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 
-        vr::VRCompositor()->Submit(vr::Eye_Left, &left );
-        vr::VRCompositor()->Submit(vr::Eye_Right, &right );
+		vr::VRCompositor()->WaitGetPoses(nullptr, 0, nullptr, 0);
+
+        vr::VRCompositor()->Submit(vr::Eye_Left, &left);
+        vr::VRCompositor()->Submit(vr::Eye_Right, &right);
       }
 
 	  glFlush();

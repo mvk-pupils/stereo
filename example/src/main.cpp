@@ -83,6 +83,9 @@ int main(int argc, const char* argv[]) {
         vr::VRCompositor()->Submit(vr::Eye_Right, &right );
       }
 
+	  glFlush();
+	  glFinish();
+
       window.swap_buffers();
     }
 

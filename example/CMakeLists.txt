@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.10)
 
 set(PROJECT_ROOT ${PROJECT_SOURCE_DIR})
 
@@ -31,19 +31,6 @@ find_library(OPENVR_LIBRARY
     NO_CMAKE_FIND_ROOT_PATH
 )
 set(OPENVR_INCLUDE_DIR ${PROJECT_ROOT}/libs/openvr/headers)
-
-if(WIN32)
-    find_path(OPENVR_DLL 
-        openvr_api.dll 
-        PATHS ${PROJECT_ROOT}/libs/openvr/bin 
-        PATH_SUFFIXES ${WINDOWS_PATH_SUFFIXES}
-    )
-    set(OPENVR_DLL "${OPENVR_DLL}/openvr_api.dll")
-    file(
-        COPY ${OPENVR_DLL}
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-    )
-endif()
 
 
 # Stereo Executable

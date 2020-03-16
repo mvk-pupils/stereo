@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.10)
 project(stereo)
 
 set(CMAKE_CXX_STANDARD 11)
 
-option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" ON)
+option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
 
 # Pull down submodules
 find_package(Git QUIET)
@@ -48,7 +48,7 @@ if (BUILD_DOCUMENTATION)
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM)
     else (DOXYGEN_FOUND)
-        message(FATAL_ERROR "Doxygen need to be installed to generate the doxygen documentation")
+        message(WARNING "Doxygen need to be installed to generate the doxygen documentation")
     endif (DOXYGEN_FOUND)
 endif (BUILD_DOCUMENTATION)
 
@@ -107,6 +107,19 @@ set_target_properties(stereo-world PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if(WIN32)
+    find_path(OPENVR_DLL 
+        openvr_api.dll 
+        PATHS ${PROJECT_ROOT}/libs/openvr/bin 
+        PATH_SUFFIXES ${WINDOWS_PATH_SUFFIXES}
+    )
+    set(OPENVR_DLL "${OPENVR_DLL}/openvr_api.dll")
+	message("Copying ${OPENVR_DLL} to ${CMAKE_CURRENT_BINARY_DIR}")
+    file(
+        COPY ${OPENVR_DLL}
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+    )
+endif()
 
 # Enable all warnings and treat them as errors
 if(MSVC)
@@ -119,3 +132,7 @@ target_compile_options(stereo ${WARNING_FLAGS})
 target_compile_options(stereo-static ${WARNING_FLAGS})
 target_compile_options(stereo-world ${WARNING_FLAGS})
 
+file(
+    COPY ${OPENVR_DLL}
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+)

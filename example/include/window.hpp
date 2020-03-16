@@ -1,14 +1,22 @@
 #include <GLFW/glfw3.h> 
 #include <vector>
+#include <memory>
+
+struct WindowState {
+	/// A list of the currently pressed keys.
+	std::vector<int> pressed_keys;
+};
 
 /// A wnapper around a GLFW window.
 class Window {
   private:
+	Window();
+
     /// The handle to the window.
     GLFWwindow* handle;
 
-    /// A list of the currently pressed keys.
-    std::vector<int> pressed_keys;
+	/// The current window state
+	std::shared_ptr<WindowState> state;
 
   public:
     /// Open a new window with the specified size.

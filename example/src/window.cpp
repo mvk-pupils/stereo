@@ -1,6 +1,11 @@
 #include "window.hpp"
 #include <util.hpp>
 
+Window::Window() {
+	this->handle = nullptr;
+	this->state = std::make_shared<WindowState>(WindowState());
+}
+
 Window Window::open(int width, int height) {
   if (!glfwInit()) {
     throw 1;
@@ -49,15 +54,15 @@ void Window::swap_buffers() {
 }
 
 bool Window::is_key_down(int key) {
-  auto start = this->pressed_keys.begin();
-  auto end = this->pressed_keys.end();
+  auto start = this->state->pressed_keys.begin();
+  auto end = this->state->pressed_keys.end();
   return std::find(start, end, key) != end;
 }
 
 void Window::setup_window_callbacks() {
   // Store a pointer to the current `Window` class in the handle so that we can
   // reference it from the callbacks.
-  glfwSetWindowUserPointer(this->handle, this);
+  glfwSetWindowUserPointer(this->handle, this->state.get());
   glfwSetKeyCallback(this->handle, Window::key_callback);
 }
 
@@ -65,8 +70,8 @@ void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int ac
   UNUSED(scancode);
   UNUSED(mode);
 
-  auto window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfw_window));
-  auto& keys = window->pressed_keys;
+  auto state = reinterpret_cast<WindowState*>(glfwGetWindowUserPointer(glfw_window));
+  auto& keys = state->pressed_keys;
 
   if (action == GLFW_PRESS) {
     keys.push_back(key);

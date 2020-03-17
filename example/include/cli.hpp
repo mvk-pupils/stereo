@@ -10,7 +10,7 @@ enum DisplayKind {
 /// Options extracted from command line arguments
 struct CliArguments {
   /// Which display to use for output.
-  DisplayKind display = MONITOR;
+  DisplayKind display = VR;
 };
 
 /// Parse a sequence of command line arguments.

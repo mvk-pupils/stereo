@@ -108,12 +108,7 @@ set_target_properties(stereo-world PROPERTIES
 )
 
 if(WIN32)
-    find_path(OPENVR_DLL 
-        openvr_api.dll 
-        PATHS ${PROJECT_ROOT}/libs/openvr/bin 
-        PATH_SUFFIXES ${WINDOWS_PATH_SUFFIXES}
-    )
-    set(OPENVR_DLL "${OPENVR_DLL}/openvr_api.dll")
+    set(OPENVR_DLL "${PROJECT_SOURCE_DIR}/libs/openvr/bin/win64/openvr_api.dll")
 	message("Copying ${OPENVR_DLL} to ${CMAKE_CURRENT_BINARY_DIR}")
     file(
         COPY ${OPENVR_DLL}

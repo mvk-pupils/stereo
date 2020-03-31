@@ -11,6 +11,8 @@
 
 #include <openvr.h>
 
+#include <IconicVideo/GpuVideoDecoder.h>
+
 /// Initialize OpenVR (kinda broken on MacOS and Linux right now)
 vr::IVRSystem* init_openvr() {
     vr::HmdError error;
@@ -40,6 +42,9 @@ StereoViewport get_stereo_viewport(int width, int height) {
 
 int main(int argc, const char* argv[]) {
   auto arguments = parse_cli_arguments(argc, argv);
+
+  auto decoder = GpuVideoDecoder::Create();
+  UNUSED(decoder);
 
   try {
     printf("Stereo Example Executable (SEE)\n\n");

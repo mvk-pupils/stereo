@@ -40,6 +40,7 @@ set(ICONIC_LIBRARIES
     "$ENV{ICONICPATH}/IconicGpu/lib/x64/Release/IconicMatch.lib"
     "$ENV{ICONICPATH}/IconicGpu/lib/x64/Release/IconicGpu.lib"
 )
+set(ICONIC_INCLUDE_DIR "$ENV{ICONICPATH}/IconicGpu/include")
 
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)

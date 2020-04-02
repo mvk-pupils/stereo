@@ -62,8 +62,6 @@ Stereo::Stereo(int width, int height) :
 }
 
 StereoView Stereo::draw(StereoViewport viewport) {
-  UNUSED(viewport);
-
   this->program.use();
 
   // Left eye

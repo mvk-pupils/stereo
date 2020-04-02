@@ -58,10 +58,7 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 
-# GLAD
-# add_subdirectory(libs/glad-generated)
-# set_property(TARGET ${GLAD_LIBRARIES} PROPERTY POSITION_INDEPENDENT_CODE ON)
-
+# GLEW
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 

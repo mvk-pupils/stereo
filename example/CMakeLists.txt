@@ -34,20 +34,12 @@ set(OPENVR_INCLUDE_DIR ${PROJECT_ROOT}/libs/openvr/headers)
 
 
 # Iconic API (proprietary)
-find_library(OPENVR_LIBRARY
-    NAMES
-        openvr_api OpenVR
-    PATHS
-        ${PROJECT_ROOT}/libs/openvr/bin
-        ${PROJECT_ROOT}/libs/openvr/lib
-    PATH_SUFFIXES
-        osx64
-        linux64
-        ${WINDOWS_PATH_SUFFIXES}
-    NO_DEFAULT_PATH
-    NO_CMAKE_FIND_ROOT_PATH
-)
 set(ICONIC_INCLUDE_DIR "$ENV{ICONICPATH}/IconicGpu/include")
+set(ICONIC_LIBRARIES
+    "$ENV{ICONICPATH}/IconicGpu/lib/x64/Release/IconicVideo.lib"
+    "$ENV{ICONICPATH}/IconicGpu/lib/x64/Release/IconicMatch.lib"
+    "$ENV{ICONICPATH}/IconicGpu/lib/x64/Release/IconicGpu.lib"
+)
 
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -81,4 +73,4 @@ set(STEREO_BIN_LIBRARIES
 add_executable(stereo-world ${STEREO_BIN_SOURCES})
 target_include_directories(stereo-world ${STEREO_BIN_INCLUDES})
 target_link_libraries(stereo-world ${STEREO_BIN_LIBRARIES})
-target_link_libraries(stereo-world "$ENV{ICONICPATH}/IconicGpu/lib/x64/Release/IconicVideo.lib")
+target_link_libraries(stereo-world ${ICONIC_LIBRARIES})

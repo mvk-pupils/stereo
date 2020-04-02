@@ -21,7 +21,6 @@ Mesh Mesh::create() {
   mesh.vertex_array = std::shared_ptr<GLuint>(
       vertex_array,
       [](GLuint* v){
-        DEBUG("Deleting vertex array (%d)", *v);
         glDeleteVertexArrays(1, v);
       }
     );
@@ -29,7 +28,6 @@ Mesh Mesh::create() {
   mesh.vertex_buffer = std::shared_ptr<GLuint>(
       vertex_buffer,
       [](GLuint* v){
-        DEBUG("Deleting vertex buffer (%d)", *v);
         glDeleteBuffers(1, v);
       }
     );
@@ -37,7 +35,6 @@ Mesh Mesh::create() {
   mesh.element_buffer = std::shared_ptr<GLuint>(
       element_buffer,
       [](GLuint* v){
-        DEBUG("Deleting element buffer (%d)", *v);
         glDeleteBuffers(1, v);
       }
     );

@@ -17,9 +17,15 @@ struct StereoView {
   View right;
 };
 
+struct ScissorRectangle {
+    float left, right, top, bottom;
+};
+
 /// The position and size of a viewport (an eye).
 struct Viewport {
   GLuint width, height;
+  GLuint texture;
+  ScissorRectangle rectangle;
 };
 
 /// The position and size of the eyes/cameras.
@@ -32,16 +38,10 @@ struct StereoViewport {
 class Stereo {
   private:
     /// Create a new display.
-    Stereo();
+    Stereo(int width, int height);
 
     /// Shader program to display the screen.
     Program program;
-
-    /// The vertices of the display.
-    Mesh mesh;
-
-    /// The texture to render on the display.
-    Texture texture;
 
     /// Framebuffer for the left eye. 
     Framebuffer left;
@@ -51,7 +51,7 @@ class Stereo {
   public:
     /// Initialize the library and construct a new handle.
     /// @returns A handle to the library.
-    static Stereo init();
+    static Stereo init(int width, int height);
 
     /// Draw the stereo display.
     /// @param viewport How to render each eye.

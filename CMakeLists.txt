@@ -71,12 +71,15 @@ file(
 # Shader Source
 add_executable(shader_embedder src/tools/shaderembedder.cpp)
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/shadersource.hpp
-    COMMAND shader_embedder ${CMAKE_CURRENT_BINARY_DIR}/include/shadersource.hpp
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment_shader.frag frag
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex_shader.vert vert
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp
+    COMMAND shader_embedder
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment_shader.frag frag
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex_shader.vert vert
     DEPENDS shader_embedder
+    COMMENT "Generating shader header..."
 )
+add_custom_target(shader_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp)
 
 # Stereo Library
 set(STEREO_SOURCES
@@ -90,7 +93,7 @@ set(STEREO_SOURCES
 
 set(STEREO_INCLUDE_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/include/shadersource.hpp
+    shader_headers
     )
 set(STEREO_INCLUDES
     PUBLIC ${STEREO_INCLUDE_DIR}

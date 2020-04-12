@@ -77,7 +77,7 @@ void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int ac
   if (action == GLFW_PRESS) {
     keys.push_back(key);
   } else if (action == GLFW_RELEASE) {
-    for (int i = keys.size() - 1; i >= 0; i--) {
+    for (int i = (int)keys.size() - 1; i >= 0; i--) {
       if (keys[i] == key) {
         util::swap_remove(keys, i);
       }

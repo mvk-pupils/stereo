@@ -27,7 +27,7 @@ struct Viewport {
   GLuint width, height;
   /// The texture (a frame of video) to display.
   GLuint texture;
-  /// The subsection to display.
+  /// The subsection of the frame to display.
   ScissorRectangle rectangle;
 };
 

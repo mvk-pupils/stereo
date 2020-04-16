@@ -12,40 +12,14 @@
 const char* VERTEX_SOURCE = R"(
 #version 330 core
 
-#define M_PI 3.141592653589793238462643383279502884197169399375105820974
-
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec4 color;
 layout (location = 2) in vec2 texture_coord;
 
-out vec4 frag_color;
 out vec2 frag_texture_coord;
 
-uniform float time;
-
-vec3 axis_rotate(vec3 axis, vec3 coord, float angle) {
-  float rot_cos = cos(angle), rot_sin = sin(angle);
-  float inv_cos = (1 - rot_cos);
-  mat3 rotate = mat3(
-    vec3(
-      rot_cos + axis.x*axis.x*inv_cos,
-      axis.y*axis.x*inv_cos + axis.z*rot_sin,
-      axis.z*axis.x*inv_cos - axis.y*rot_sin),
-    vec3(
-      axis.x*axis.y*inv_cos - axis.z*rot_sin,
-      rot_cos + axis.y*axis.y*inv_cos,
-      axis.z*axis.y*inv_cos + axis.x*rot_sin),
-    vec3(
-      axis.x*axis.z*inv_cos + axis.y*rot_sin,
-      axis.y*axis.z*inv_cos - axis.x*rot_sin,
-      rot_cos + axis.z*axis.z*inv_cos));
-  return rotate * coord;
-}
-
 void main() {
-  vec3 axis = vec3(-1,1,-1) / sqrt(3);
-  gl_Position = vec4(axis_rotate(axis, position, M_PI/3), 1.0);
-  frag_color = color;
+  gl_Position = vec4(position, 1.0);
   frag_texture_coord = texture_coord;
 }
 )";
@@ -53,7 +27,6 @@ void main() {
 const char* FRAGMENT_SOURCE = R"(
 #version 330 core
 
-in vec4 frag_color;
 in vec2 frag_texture_coord;
 
 out vec4 out_color;
@@ -61,8 +34,7 @@ out vec4 out_color;
 uniform sampler2D frag_texture;
 
 void main() {
-  vec4 tex_color = texture(frag_texture, frag_texture_coord);
-  out_color = frag_color;
+  out_color = texture(frag_texture, frag_texture_coord);
 }
 )";
 

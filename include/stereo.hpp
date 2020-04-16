@@ -7,7 +7,7 @@
 
 /// A rasterized view of the scene.
 struct View {
-  /// The ID of a GL texture that contains the color data.
+  /// The ID of a GL texture that contains the color data of the rendered view.
   GLuint texture;
 };
 
@@ -23,8 +23,11 @@ struct ScissorRectangle {
 
 /// The position and size of a viewport (an eye).
 struct Viewport {
+  /// The width and height of the resulting rendered view.
   GLuint width, height;
+  /// The texture (a frame of video) to display.
   GLuint texture;
+  /// The subsection to display.
   ScissorRectangle rectangle;
 };
 

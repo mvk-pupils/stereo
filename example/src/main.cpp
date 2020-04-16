@@ -122,7 +122,7 @@ public:
     virtual bool SwapBuffers() override
     {
         this->window.swap_buffers();
-        return false;
+        return true;
     }
 };
 
@@ -134,10 +134,12 @@ int main(int argc, const char* argv[]) {
     
     auto decoder = GpuVideoDecoder::Create();
     int stream_number = 0;
-    auto canvas = new Canvas(1280, 720, stream_number);
+
+    decoder->LoadVideo("img/roller.mp4");
+
+    auto canvas = new Canvas(decoder->GetVideoWidth(), decoder->GetVideoWidth(), stream_number);
     canvas->ProcessBeforePaint(EOperation::texture | EOperation::pyramid | EOperation::gpuimage);
 
-    decoder->LoadVideo("img/jilin-side-by-side-stereo1.mp4");
     decoder->Start(canvas);
 
     while (canvas->window.is_open()) {

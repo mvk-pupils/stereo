@@ -69,9 +69,9 @@ set(STEREO_BIN_LIBRARIES
     glfw
     ${OPENVR_LIBRARY}
     ${Boost_LIBRARIES}
+    ${ICONIC_LIBRARIES}
 )
 
 add_executable(stereo-world ${STEREO_BIN_SOURCES})
 target_include_directories(stereo-world ${STEREO_BIN_INCLUDES})
 target_link_libraries(stereo-world ${STEREO_BIN_LIBRARIES})
-target_link_libraries(stereo-world ${ICONIC_LIBRARIES})

@@ -2,26 +2,65 @@
 
 #include "shader.hpp"
 #include "mesh.hpp"
+#include "texture.hpp"
+#include "framebuffer.hpp"
+
+/// A rasterized view of the scene.
+struct View {
+  /// The ID of a GL texture that contains the color data of the rendered view.
+  GLuint texture;
+};
+
+/// A rasterized view of the scene, from the perspective of two eyes.
+struct StereoView {
+  View left;
+  View right;
+};
+
+struct ScissorRectangle {
+    float left, right, top, bottom;
+};
+
+/// The position and size of a viewport (an eye).
+struct Viewport {
+  /// The width and height of the resulting rendered view.
+  GLuint width, height;
+  /// The texture (a frame of video) to display.
+  GLuint texture;
+  /// The subsection of the frame to display.
+  ScissorRectangle rectangle;
+};
+
+/// The position and size of the eyes/cameras.
+struct StereoViewport {
+  Viewport left;
+  Viewport right;
+};
 
 /// Main entry point for the stereo display.
 class Stereo {
   private:
     /// Create a new display.
-    /// @param program The shader program.
-    /// @param mesh The display mesh.
-    Stereo(Program program, Mesh mesh);
+    Stereo(int width, int height);
 
     /// Shader program to display the screen.
     Program program;
 
-    /// The vertices of the display.
-    Mesh mesh;
+    /// Framebuffer for the left eye. 
+    Framebuffer left;
+    /// Framebuffer for the right eye. 
+    Framebuffer right;
 
   public:
     /// Initialize the library and construct a new handle.
     /// @returns A handle to the library.
-    static Stereo init();
+    static Stereo init(int width, int height);
 
     /// Draw the stereo display.
-    void draw();
+    /// @param viewport How to render each eye.
+    /// @returns Two framebuffers, one for each eye.
+    StereoView draw(StereoViewport viewport);
+
+  private:
+    void render_scene(Viewport viewport);
 };

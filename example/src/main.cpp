@@ -15,21 +15,6 @@
 #include "cli.hpp"
 #include "window.hpp"
 
-#include <openvr.h>
-
-/// Initialize OpenVR (kinda broken on MacOS and Linux right now)
-vr::IVRSystem* init_openvr() {
-    vr::HmdError error;
-    auto openvr = vr::VR_Init(&error, vr::VRApplication_Scene);
-
-    if (error) {
-      auto message = VR_GetVRInitErrorAsEnglishDescription(error);
-      printf("ERROR: %s\n", message);
-    }
-
-    return openvr;
-}
-
 StereoViewport get_stereo_viewport(int width, int height) {
   StereoViewport viewport;
 
@@ -48,7 +33,6 @@ class Canvas : public ImageGLBase {
 public:
     Window window;
     int stream_number;
-    vr::IVRSystem* openvr;
     Stereo* stereo;
 
     int width, height;
@@ -57,7 +41,6 @@ public:
         ImageGLBase(width, height, width, height, true, stream_number, ImageGLBase::PixelFormat::BGRA_PIXEL_FORMAT),
         stream_number(stream_number),
         window(Window::open(width, height)),
-        openvr(init_openvr()),
         stereo(nullptr),
         width(width),
         height(height)
@@ -103,17 +86,6 @@ public:
             viewport.right.rectangle.left = 0.5f;
 
             StereoView view = this->stereo->draw(viewport);
-
-            if (this->openvr) {
-                // Taken from the OpenVR OpenGL example:
-                vr::Texture_t left = { (void*)(uintptr_t)view.left.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-                vr::Texture_t right = { (void*)(uintptr_t)view.right.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-
-                vr::VRCompositor()->WaitGetPoses(nullptr, 0, nullptr, 0);
-
-                vr::VRCompositor()->Submit(vr::Eye_Left, &left);
-                vr::VRCompositor()->Submit(vr::Eye_Right, &right);
-            }
 
             this->window.swap_buffers();
         }

@@ -96,3 +96,8 @@ Program::Program(GLuint program) {
 void Program::use() {
   glUseProgram(*this->program);
 }
+
+GLuint Program::get_location(char* name)
+{
+		return glGetUniformLocation(*this->program, name);
+}

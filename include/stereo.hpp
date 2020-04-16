@@ -5,6 +5,8 @@
 #include "texture.hpp"
 #include "framebuffer.hpp"
 
+#include <openvr.h>
+
 /// A rasterized view of the scene.
 struct View {
   /// The ID of a GL texture that contains the color data of the rendered view.
@@ -43,6 +45,9 @@ class Stereo {
     /// Create a new display.
     Stereo(int width, int height);
 
+    /// OpenVR handle
+    vr::IVRSystem* openvr;
+
     /// Shader program to display the screen.
     Program program;
 
@@ -62,5 +67,5 @@ class Stereo {
     StereoView draw(StereoViewport viewport);
 
   private:
-    void render_scene(Viewport viewport);
+    void render_scene(Viewport viewport, vr::Hmd_Eye eye);
 };

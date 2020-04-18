@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\krist\Desktop\MVK\stereo\CMakeFiles\93dc06977b86e40e7da16a6a4b0367ec\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{BBD8064D-FD1C-3CEB-9FCF-7C0F646C9720}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

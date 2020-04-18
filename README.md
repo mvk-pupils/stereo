@@ -1,4 +1,3 @@
-
 # Stereo
 
 [![Build Status](https://travis-ci.org/mvk-pupils/stereo.svg?branch=master)](https://travis-ci.org/mvk-pupils/stereo)
@@ -12,6 +11,15 @@ $ cmake ..
 $ cmake --build .
 ```
 
+### VCPKG toolchain
+
+If Cmake .. cause an error and claims that Boost cannot be found it may be because you need to switch to the vcpkg toolchain. To do this, use the following command with the path to your vcpkg.cmake file.
+
+Example:
+
+```
+cmake -D CMAKE_TOOLCHAIN_FILE="C:\Users\username\vcpkg\scripts\buildsystems\vcpkg.cmake"
+```
 
 ### Disabling Doxygen
 
@@ -20,7 +28,6 @@ If you don't want to build the documentation run cmake with:
 ```
 $ cmake .. -D BUILD_DOCUMENTATION=OFF
 ```
-
 
 ### Run executable
 
@@ -37,21 +44,20 @@ $ ./stereo-world.exe
 ./stereo-world
 ```
 
-
 ## Building the executable (Windows)
 
 The executable depends on ICONIC Vision's proprietary library
 which neeeds to be built beforehand. Refer to the instructions
-in their documentation. 
+in their documentation.
 
-1. Set the `ICONICPATH` environment variable to the path of 
+1. Set the `ICONICPATH` environment variable to the path of
    the library source.
 
 2. Run cmake using `cmake <source_directory> -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake`
-   where `source_directory` is the root of this repository and `<path_to_vcpkg>` 
+   where `source_directory` is the root of this repository and `<path_to_vcpkg>`
    is the path to the vcpkg installation directory, eg: `C:/Users/<your_username>/vcpkg/scripts/buildsystems/vcpkg.cmake`
 
 3. Build the solution using your preferred build system (eg. `cmake --build .`).
 
-4. At this point there may be some DLLs missing from the build directory. 
+4. At this point there may be some DLLs missing from the build directory.
    Copy these from where you built ICONIC's library next to the executable.

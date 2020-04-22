@@ -245,8 +245,8 @@ CMAKE_STATIC_LINKER_FLAGS_RELEASE:STRING=
 // during RELWITHDEBINFO builds.
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//The CMake toolchain file
-CMAKE_TOOLCHAIN_FILE:FILEPATH=C:/Users/krist/vcpkg/scripts/buildsystems/vcpkg.cmake
+//No help, variable specified on the command line.
+CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -269,14 +269,14 @@ GLEW_DIR:PATH=C:/Users/krist/vcpkg/installed/x64-windows/share/glew
 //Value Computed by CMake
 GLFW_BINARY_DIR:STATIC=C:/Users/krist/Desktop/MVK/stereo/example/glfw
 
-//Build the GLFW documentation
-GLFW_BUILD_DOCS:BOOL=OFF
+//No help, variable specified on the command line.
+GLFW_BUILD_DOCS:UNINITIALIZED=OFF
 
-//Build the GLFW example programs
-GLFW_BUILD_EXAMPLES:BOOL=OFF
+//No help, variable specified on the command line.
+GLFW_BUILD_EXAMPLES:UNINITIALIZED=OFF
 
-//Build the GLFW test programs
-GLFW_BUILD_TESTS:BOOL=OFF
+//No help, variable specified on the command line.
+GLFW_BUILD_TESTS:UNINITIALIZED=OFF
 
 //Generate installation target
 GLFW_INSTALL:BOOL=ON
@@ -449,7 +449,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MT
 CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=4
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
 //Platform information initialized
 CMAKE_PLATFORM_INFO_INITIALIZED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_RC_COMPILER

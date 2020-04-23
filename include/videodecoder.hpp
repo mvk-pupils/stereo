@@ -1,23 +1,26 @@
-#include "texture.hpp"
+#include "gl.h"
 
 struct Frame{
 
-  Texture texture; //OpenGL texture
+  GLuint texture; //OpenGL texture
   int number; //frame index
-
+  int width;
+  int height;
 };
 
-
+enum Playback {
+  PLAY, PAUSE, FFW
+}
 
 class VideoDecoder{
 public:
 
-  virtual void next_frame();
+  virtual Frame next_frame();
 
   virtual void set_playback(Playback);
 
-  virtual void total_frames();
+  virtual int total_frames();
 
-  virtual void frame_rate(GpuVideoDecoder decoder);
+  virtual int frame_rate();
 
 };

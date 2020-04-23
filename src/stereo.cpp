@@ -54,7 +54,7 @@ vr::IVRSystem* init_openvr() {
     return openvr;
 }
 
-Stereo Stereo::init(int width, int height) {
+void Stereo::display_video(VideoDecoder* decoder) {
   if (glewInit()) {
     ERROR("Failed to load OpenGL");
     throw std::runtime_error("Failed to load OpenGL");
@@ -64,14 +64,40 @@ Stereo Stereo::init(int width, int height) {
   INFO("Using OpenGL: %s", glGetString(GL_VERSION));
   INFO("Using GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-  return Stereo(width, height);
+  auto openvr = init_openvr();
+  int width = 0;
+  int height = 0;
+  openvr->GetRecommendedRenderTargetSize(&width, &height);
+  auto stereo = Stereo(width, height, decoder, openvr);
+
+  while(true){
+    auto frame = decoder->next_frame();
+    if(frame.texture){
+    Viewport base;
+    base.texture = frame.texture;
+    base.width = this->width / 2;
+    base.height = this->height;
+    base.rectangle.left = 0.0f;
+    base.rectangle.right = 1.0f;
+    base.rectangle.top = 0.0f;
+    base.rectangle.bottom = 1.0f;
+
+    StereoViewport viewport;
+    viewport.left = base;
+    viewport.left.rectangle.right = 0.5f;
+    viewport.right = base;
+    viewport.right.rectangle.left = 0.5f;
+    stereo.draw(viewport);
+    }
+  }
 }
 
-Stereo::Stereo(int width, int height) : 
+Stereo::Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr) :
   program(Program::compile(VERTEX_SOURCE, FRAGMENT_SOURCE)),
   left(Framebuffer::create(width / 2, height)),
   right(Framebuffer::create(width / 2, height)),
-  openvr(init_openvr())
+  openvr(openvr),
+  decoder(decoder)
 {
 }
 
@@ -80,7 +106,7 @@ StereoView Stereo::draw(StereoViewport viewport) {
 
   // Left eye
   this->left.bind();
-  
+
   glViewport(0, 0, this->left.width(), this->left.height());
   glClearColor(0.77f, 0.62f, 0.78f, 1.0f);
   this->render_scene(viewport.left, vr::Eye_Left);
@@ -102,16 +128,16 @@ StereoView Stereo::draw(StereoViewport viewport) {
   this->left.bind(GL_READ_FRAMEBUFFER);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBlitFramebuffer(
-      0, 0, this->left.width(), this->left.height(), 
-      0, 0, viewport.left.width, viewport.left.height, 
+      0, 0, this->left.width(), this->left.height(),
+      0, 0, viewport.left.width, viewport.left.height,
       GL_COLOR_BUFFER_BIT, GL_LINEAR
     );
 
   this->right.bind(GL_READ_FRAMEBUFFER);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBlitFramebuffer(
-      0, 0, this->right.width(), this->right.height(), 
-      viewport.left.width, 0, viewport.left.width + viewport.right.width, viewport.right.height, 
+      0, 0, this->right.width(), this->right.height(),
+      viewport.left.width, 0, viewport.left.width + viewport.right.width, viewport.right.height,
       GL_COLOR_BUFFER_BIT, GL_LINEAR
     );
 

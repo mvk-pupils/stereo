@@ -45,27 +45,29 @@ class Stereo {
     /// Create a new display.
     Stereo(int width, int height);
 
+    VideoDecoder decoder;
+
     /// OpenVR handle
     vr::IVRSystem* openvr;
 
     /// Shader program to display the screen.
     Program program;
 
-    /// Framebuffer for the left eye. 
+    /// Framebuffer for the left eye.
     Framebuffer left;
-    /// Framebuffer for the right eye. 
+    /// Framebuffer for the right eye.
     Framebuffer right;
 
   public:
     /// Initialize the library and construct a new handle.
     /// @returns A handle to the library.
-    static Stereo init(int width, int height);
+    static void display_video(VideoDecoder*);
+
+  private:
+    void render_scene(Viewport viewport, vr::Hmd_Eye eye);
 
     /// Draw the stereo display.
     /// @param viewport How to render each eye.
     /// @returns Two framebuffers, one for each eye.
     StereoView draw(StereoViewport viewport);
-
-  private:
-    void render_scene(Viewport viewport, vr::Hmd_Eye eye);
 };

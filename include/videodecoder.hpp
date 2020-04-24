@@ -2,7 +2,7 @@
 
 struct Frame{
 
-  GLuint texture; //OpenGL texture
+  GLuint texture = 0; //OpenGL texture
   int number; //frame index
   int width;
   int height;
@@ -21,6 +21,6 @@ public:
 
   virtual int total_frames() = 0;
 
-  virtual int frame_rate() = 0;
+  virtual double frame_rate() = 0;
 
 };

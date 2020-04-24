@@ -15,25 +15,10 @@
 #include "cli.hpp"
 #include "window.hpp"
 
-StereoViewport get_stereo_viewport(int width, int height) {
-  StereoViewport viewport;
-
-  auto left = &viewport.left;
-  left->width = width / 2;
-  left->height = height;
-
-  auto right = &viewport.right;
-  right->width = width / 2;
-  right->height = height;
-
-  return viewport;
-}
-
 class Canvas : public ImageGLBase {
 public:
     Window window;
     int stream_number;
-    Stereo* stereo;
 
     int width, height;
 
@@ -41,7 +26,6 @@ public:
         ImageGLBase(width, height, width, height, true, stream_number, ImageGLBase::PixelFormat::BGRA_PIXEL_FORMAT),
         stream_number(stream_number),
         window(Window::open(width, height)),
-        stereo(nullptr),
         width(width),
         height(height)
     {
@@ -57,38 +41,12 @@ public:
     {
         // Init gl
         this->window.make_context_current();
-        if (!this->stereo) {
-            this->stereo = new Stereo(Stereo::init(this->width, this->height));
-        }
     }
 
     virtual void refresh() override
     {
-        // Draw stuff
-        spacetime::GpuStreamPtr pStream = spacetime::GpuProcessor::Get(GpuContext::Get())->GetStream(0);
-        if (!pStream)
-            return;
-        GLuint gl = pStream->GetGLTexture(ORIGINAL);
-        if (gl) {
-            Viewport base;
-            base.texture = gl;
-            base.width = this->width / 2;
-            base.height = this->height;
-            base.rectangle.left = 0.0f;
-            base.rectangle.right = 1.0f;
-            base.rectangle.top = 0.0f;
-            base.rectangle.bottom = 1.0f;
-
-            StereoViewport viewport;
-            viewport.left = base;
-            viewport.left.rectangle.right = 0.5f;
-            viewport.right = base;
-            viewport.right.rectangle.left = 0.5f;
-
-            StereoView view = this->stereo->draw(viewport);
-
-            this->window.swap_buffers();
-        }
+        this->window.poll_events();
+        this->window.swap_buffers();
     }
 
     virtual bool SwapBuffers() override
@@ -98,33 +56,70 @@ public:
     }
 };
 
+
+class VideoStream : public VideoDecoder {
+    GpuVideoDecoder* decoder;
+    Canvas* canvas;
+
+public:
+
+    VideoStream(char* video_path) {
+        this->decoder = GpuVideoDecoder::Create();
+        int stream_number = 0;
+        this->decoder->LoadVideo(video_path);
+
+        auto width = decoder->GetVideoWidth();
+        auto height = decoder->GetVideoHeight();
+        this->canvas = new Canvas(width, height);
+
+        this->canvas->ProcessBeforePaint(EOperation::texture | EOperation::pyramid | EOperation::gpuimage);
+        decoder->Start(this->canvas);
+    }
+    
+    virtual Frame next_frame() override
+    {
+        bool bFramesDecoded;
+        decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
+
+        Frame frame;
+
+        if (bFramesDecoded) {
+            spacetime::GpuStreamPtr pStream = spacetime::GpuProcessor::Get(GpuContext::Get())->GetStream(0);
+            if (pStream) {
+                frame.texture = pStream->GetGLTexture(ORIGINAL);
+            }
+        }
+
+        return frame;
+    }
+
+    virtual void set_playback(Playback) override
+    {
+        // TODO
+    }
+
+    virtual int total_frames() override
+    {
+        // TODO
+        return 0;
+    }
+
+    virtual double frame_rate() override
+    {
+        // TODO 
+        return this->decoder->GetFrameRate();
+    }
+};
+
+
 int main(int argc, const char* argv[]) {
   auto arguments = parse_cli_arguments(argc, argv);
 
   try {
     printf("Stereo Example Executable (SEE)\n\n");
-    
-    auto decoder = GpuVideoDecoder::Create();
-    int stream_number = 0;
 
-    decoder->LoadVideo("img/roller.mp4");
-
-    auto canvas = new Canvas(decoder->GetVideoWidth(), decoder->GetVideoWidth(), stream_number);
-    canvas->ProcessBeforePaint(EOperation::texture | EOperation::pyramid | EOperation::gpuimage);
-
-    decoder->Start(canvas);
-
-    while (canvas->window.is_open()) {
-        bool bFramesDecoded;
-        decoder->renderVideoFrame(canvas, true, true, bFramesDecoded);
-
-        canvas->window.poll_events();
-
-        if (canvas->window.is_key_down(GLFW_KEY_ESCAPE)) {
-            canvas->window.close();
-            break;
-        }
-    }
+    auto video_stream = new VideoStream("img/roller_coaster.mp4");
+    Stereo::display_video(video_stream);
 
     printf("Bye\n");
   } catch (std::exception& e) {

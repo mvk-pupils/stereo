@@ -9,18 +9,18 @@ struct Frame{
 };
 
 enum Playback {
-  PLAY, PAUSE, FFW
-}
+    PLAY, PAUSE, FFW
+};
 
 class VideoDecoder{
 public:
 
-  virtual Frame next_frame();
+  virtual Frame next_frame() = 0;
 
-  virtual void set_playback(Playback);
+  virtual void set_playback(Playback) = 0;
 
-  virtual int total_frames();
+  virtual int total_frames() = 0;
 
-  virtual int frame_rate();
+  virtual int frame_rate() = 0;
 
 };

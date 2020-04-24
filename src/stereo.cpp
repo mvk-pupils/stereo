@@ -65,18 +65,17 @@ void Stereo::display_video(VideoDecoder* decoder) {
   INFO("Using GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
   auto openvr = init_openvr();
-  int width = 0;
-  int height = 0;
+  unsigned int width = 0, height = 0;
   openvr->GetRecommendedRenderTargetSize(&width, &height);
   auto stereo = Stereo(width, height, decoder, openvr);
 
   while(true){
     auto frame = decoder->next_frame();
-    if(frame.texture){
+    if(frame.texture) {
     Viewport base;
     base.texture = frame.texture;
-    base.width = this->width / 2;
-    base.height = this->height;
+    base.width = width / 2;
+    base.height = height;
     base.rectangle.left = 0.0f;
     base.rectangle.right = 1.0f;
     base.rectangle.top = 0.0f;

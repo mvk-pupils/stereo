@@ -4,6 +4,7 @@
 #include "mesh.hpp"
 #include "texture.hpp"
 #include "framebuffer.hpp"
+#include "videodecoder.hpp"
 
 #include <openvr.h>
 
@@ -43,9 +44,9 @@ struct StereoViewport {
 class Stereo {
   private:
     /// Create a new display.
-    Stereo(int width, int height);
+    Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr);
 
-    VideoDecoder decoder;
+    VideoDecoder* decoder;
 
     /// OpenVR handle
     vr::IVRSystem* openvr;

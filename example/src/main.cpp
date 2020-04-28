@@ -78,7 +78,7 @@ public:
     
     virtual Frame next_frame() override
     {
-        bool bFramesDecoded;
+        bool bFramesDecoded = false;
         decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
 
         Frame frame;

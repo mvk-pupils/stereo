@@ -136,7 +136,7 @@ StereoView Stereo::draw(StereoViewport viewport) {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBlitFramebuffer(
       0, 0, this->right.width(), this->right.height(),
-      viewport.left.width, 0, this->left.height(), this->right.height(),
+      this->left.width(), 0, this->right.width(), this->right.height(),
       GL_COLOR_BUFFER_BIT, GL_LINEAR
     );
 

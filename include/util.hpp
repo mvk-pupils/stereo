@@ -10,9 +10,8 @@ namespace util {
   /// @param data A reference to the vector.
   /// @param index The index of the item to remove.
   template<typename T>
-  void swap_remove(std::vector<T>& data, int index) {
-    int last = (int)data.size() - 1;
-
+  void swap_remove(std::vector<T>& data, size_t index) {
+    size_t last = data.size() - 1;
     data[index] = data[last];
     data.resize(last);
   }

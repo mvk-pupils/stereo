@@ -18,7 +18,7 @@ Window Window::open(int width, int height) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
   glfwWindowHint(GLFW_SAMPLES, 8);
 
@@ -77,9 +77,10 @@ void Window::key_callback(GLFWwindow* glfw_window, int key, int scancode, int ac
   if (action == GLFW_PRESS) {
     keys.push_back(key);
   } else if (action == GLFW_RELEASE) {
-    for (int i = (int)keys.size() - 1; i >= 0; i--) {
+    for (size_t i = 0; i < keys.size(); i++) {
       if (keys[i] == key) {
         util::swap_remove(keys, i);
+        i--;
       }
     }
   }

@@ -10,8 +10,8 @@
 #include "util.hpp"
 #include "gl.h"
 
-Stereo Stereo::init() {
-  if (!gladLoadGL()) {
+Stereo Stereo::init(int width, int height) {
+  if (glewInit()) {
     ERROR("Failed to load OpenGL");
     throw std::runtime_error("Failed to load OpenGL");
   }
@@ -20,39 +20,22 @@ Stereo Stereo::init() {
   INFO("Using OpenGL: %s", glGetString(GL_VERSION));
   INFO("Using GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-  return Stereo();
+  return Stereo(width, height);
 }
 
-Stereo::Stereo() : 
+Stereo::Stereo(int width, int height) : 
   program(Program::compile(shader_vert, shader_frag)),
-  mesh(Mesh::create()),
-  texture(Texture::load("img/hqimg.png")),
-  left(Framebuffer::create(600, 600)),
-  right(Framebuffer::create(600, 600))
+  left(Framebuffer::create(width / 2, height)),
+  right(Framebuffer::create(width / 2, height))
 {
-  Vertex vertices[] = {
-    {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.47f, 0.07f}},
-    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {0.75f, 0.81f}},
-    {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {0.19f, 0.81f}},
-  };
-
-  GLuint indices[] = {
-    0, 1, 2
-  };
-
-  this->mesh.set_vertices(sizeof(vertices)/sizeof(vertices[0]), vertices);
-  this->mesh.set_indices(sizeof(indices)/sizeof(indices[0]), indices);
 }
 
 StereoView Stereo::draw(StereoViewport viewport) {
-  UNUSED(viewport);
-
   this->program.use();
-  this->texture.bind();
 
   // Left eye
   this->left.bind();
-
+  
   glViewport(0, 0, this->left.width(), this->left.height());
   glClearColor(0.77f, 0.62f, 0.78f, 1.0f);
   this->render_scene(viewport.left);
@@ -87,7 +70,6 @@ StereoView Stereo::draw(StereoViewport viewport) {
       GL_COLOR_BUFFER_BIT, GL_LINEAR
     );
 
-
   StereoView view;
   view.left.texture = this->left.get_color_texture();
   view.right.texture = this->right.get_color_texture();
@@ -96,8 +78,27 @@ StereoView Stereo::draw(StereoViewport viewport) {
 }
 
 void Stereo::render_scene(Viewport viewport) {
-  UNUSED(viewport);
   glClear(GL_COLOR_BUFFER_BIT);
+  ScissorRectangle r = viewport.rectangle;
 
-  this->mesh.draw();
+  Vertex vertices[] = {
+      {{-1, 1, 0}, {1,1,1,1}, {r.left, r.top}},
+      {{-1, -1, 0}, {1,1,1,1}, {r.left, r.bottom}},
+      {{1, -1, 0}, {1,1,1,1}, {r.right, r.bottom}},
+      {{1, 1, 0}, {1,1,1,1}, {r.right, r.top}},
+  };
+
+  GLuint indices[] = { 
+      // Triangle, lower left
+      0, 1, 2, 
+      // Triangle, upper right
+      2, 3, 0
+  };
+
+  Mesh mesh = Mesh::create();
+  mesh.set_vertices(4, vertices);
+  mesh.set_indices(6, indices);
+
+  glBindTexture(GL_TEXTURE_2D, viewport.texture);
+  mesh.draw();
 }

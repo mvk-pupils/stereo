@@ -58,14 +58,14 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 
-# GLAD
-add_subdirectory(libs/glad-generated)
-set_property(TARGET ${GLAD_LIBRARIES} PROPERTY POSITION_INDEPENDENT_CODE ON)
+# GLEW
+find_package(GLEW REQUIRED)
+find_package(OpenGL REQUIRED)
 
 # Resources
 file(
-    COPY ${CMAKE_CURRENT_SOURCE_DIR}/img/hqimg.png
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/img
+    COPY ${CMAKE_CURRENT_SOURCE_DIR}/img
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 # Shader Source
@@ -97,11 +97,13 @@ set(STEREO_INCLUDE_DIR
     )
 set(STEREO_INCLUDES
     PUBLIC ${STEREO_INCLUDE_DIR}
-    PUBLIC ${GLAD_INCLUDE_DIRS}
+    PUBLIC ${GLEW_INCLUDE_DIRS}
+    PUBLIC ${OPENGL_INCLUDE_DIRS}
 )
 
 set(STEREO_LIBRARIES
-    ${GLAD_LIBRARIES}
+    ${GLEW_LIBRARIES}
+    ${OPENGL_LIBRARIES}
 )
 
 add_library(stereo SHARED ${STEREO_SOURCES})
@@ -134,7 +136,7 @@ endif()
 
 # Enable all warnings and treat them as errors
 if(MSVC)
-    set(WARNING_FLAGS PRIVATE /W4 /WX)
+    set(WARNING_FLAGS PRIVATE)
 else()
     set(WARNING_FLAGS PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()

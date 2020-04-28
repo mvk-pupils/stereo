@@ -93,8 +93,7 @@ set(STEREO_SOURCES
 
 set(STEREO_INCLUDE_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    shader_headers
-    )
+)
 set(STEREO_INCLUDES
     PUBLIC ${STEREO_INCLUDE_DIR}
     PUBLIC ${GLEW_INCLUDE_DIRS}
@@ -108,6 +107,9 @@ set(STEREO_LIBRARIES
 
 add_library(stereo SHARED ${STEREO_SOURCES})
 add_library(stereo-static STATIC ${STEREO_SOURCES})
+
+add_dependencies(stereo shader_header)
+add_dependencies(stereo-static shader_header)
 
 target_include_directories(stereo ${STEREO_INCLUDES})
 target_include_directories(stereo-static ${STEREO_INCLUDES})

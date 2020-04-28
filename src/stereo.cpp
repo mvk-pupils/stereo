@@ -1,5 +1,6 @@
 #include "stereo.hpp"
 #include "shader.hpp"
+#include "shadersource.hpp"
 #include "mesh.hpp"
 #include "log.hpp"
 
@@ -8,35 +9,6 @@
 
 #include "util.hpp"
 #include "gl.h"
-
-const char* VERTEX_SOURCE = R"(
-#version 330 core
-
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec4 color;
-layout (location = 2) in vec2 texture_coord;
-
-out vec2 frag_texture_coord;
-
-void main() {
-  gl_Position = vec4(position, 1.0);
-  frag_texture_coord = texture_coord;
-}
-)";
-
-const char* FRAGMENT_SOURCE = R"(
-#version 330 core
-
-in vec2 frag_texture_coord;
-
-out vec4 out_color;
-
-uniform sampler2D frag_texture;
-
-void main() {
-  out_color = texture(frag_texture, frag_texture_coord);
-}
-)";
 
 Stereo Stereo::init(int width, int height) {
   if (glewInit()) {
@@ -52,7 +24,7 @@ Stereo Stereo::init(int width, int height) {
 }
 
 Stereo::Stereo(int width, int height) : 
-  program(Program::compile(VERTEX_SOURCE, FRAGMENT_SOURCE)),
+  program(Program::compile(shader_vert, shader_frag)),
   left(Framebuffer::create(width / 2, height)),
   right(Framebuffer::create(width / 2, height))
 {

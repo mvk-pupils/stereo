@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <exception>
+#include <chrono>
 
 #include <IconicVideo/GpuVideoDecoder.h>
 #include <IconicMatch/Defines.h>
@@ -60,10 +61,15 @@ public:
 class VideoStream : public VideoDecoder {
     GpuVideoDecoder* decoder;
     Canvas* canvas;
+    Playback playback;
+    std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
 
 public:
 
     VideoStream(char* video_path) {
+        this->previous_frame_time = std::chrono::high_resolution_clock::now();
+
+        this->playback = Playback::PLAY;
         this->decoder = GpuVideoDecoder::Create();
         int stream_number = 0;
         this->decoder->LoadVideo(video_path);
@@ -78,11 +84,21 @@ public:
     
     virtual Frame next_frame() override
     {
+        double frames_per_second = this->frame_rate();
+        double seconds_per_frame = frames_per_second == 0 ? 0.0 : 1.0 / this->frame_rate();
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed_nanos = (now - this->previous_frame_time).count();
+        auto elapsed_seconds = 1e-9 * (double)elapsed_nanos;
+
         bool bFramesDecoded = false;
-        decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
+        if (elapsed_seconds > seconds_per_frame) {
+            this->previous_frame_time = now;
+            if (this->playback == Playback::PLAY) {
+                decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
+            }
+        }
 
         Frame frame;
-
         if (bFramesDecoded) {
             spacetime::GpuStreamPtr pStream = spacetime::GpuProcessor::Get(GpuContext::Get())->GetStream(0);
             if (pStream) {
@@ -106,8 +122,9 @@ public:
 
     virtual double frame_rate() override
     {
-        // TODO 
-        return this->decoder->GetFrameRate();
+        // despite what the documentation says `GetFrameRate` actually returns seconds per frame.
+        auto seconds_per_frame = this->decoder->GetFrameRate();
+        return seconds_per_frame == 0 ? 0 : 1.0 / seconds_per_frame;
     }
 };
 

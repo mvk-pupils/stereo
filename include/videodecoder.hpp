@@ -1,14 +1,15 @@
 #include "gl.h"
 
-struct Frame{
+struct Frame {
 
   GLuint texture = 0; //OpenGL texture
   int number; //frame index
   int width;
   int height;
+
 };
 
-enum Playback {
+enum class Playback {
     PLAY, PAUSE, FFW
 };
 

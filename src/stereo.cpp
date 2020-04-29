@@ -69,9 +69,13 @@ void Stereo::display_video(VideoDecoder* decoder) {
   openvr->GetRecommendedRenderTargetSize(&width, &height);
   auto stereo = Stereo(width, height, decoder, openvr);
 
+  Frame frame;
   while(true){
-    auto frame = decoder->next_frame();
-    if(frame.texture) {
+    auto next_frame = decoder->next_frame();
+    if (next_frame.texture != 0) {
+      frame = next_frame;
+    }
+
     Viewport base;
     base.texture = frame.texture;
     base.width = width / 2;
@@ -80,14 +84,13 @@ void Stereo::display_video(VideoDecoder* decoder) {
     base.rectangle.right = 1.0f;
     base.rectangle.top = 0.0f;
     base.rectangle.bottom = 1.0f;
-
+      
     StereoViewport viewport;
     viewport.left = base;
     viewport.left.rectangle.right = 0.5f;
     viewport.right = base;
     viewport.right.rectangle.left = 0.5f;
     stereo.draw(viewport);
-    }
   }
 }
 

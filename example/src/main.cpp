@@ -109,9 +109,9 @@ public:
         return frame;
     }
 
-    virtual void set_playback(Playback) override
+    virtual void set_playback(Playback playback) override
     {
-        // TODO
+        this->playback = playback;
     }
 
     virtual int total_frames() override

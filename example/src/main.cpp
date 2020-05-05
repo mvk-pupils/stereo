@@ -91,11 +91,12 @@ public:
         auto elapsed_seconds = 1e-9 * (double)elapsed_nanos;
 
         bool bFramesDecoded = false;
-        if (elapsed_seconds > seconds_per_frame) {
+
+        bool should_render = (this->playback == Playback::PLAY && elapsed_seconds > seconds_per_frame) 
+            || this->playback == Playback::FFW;
+        if (should_render) {
             this->previous_frame_time = now;
-            if (this->playback == Playback::PLAY) {
-                decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
-            }
+            decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
         }
 
         Frame frame;

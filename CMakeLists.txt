@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
 
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 # Pull down submodules
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
@@ -147,18 +150,25 @@ target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo")
 # Add example executable directories
 add_subdirectory(example)
 target_compile_definitions(stereo PRIVATE LOG_SOURCE_MODULE="stereo-world")
-set_target_properties(stereo-world PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
 
 if(WIN32)
     set(OPENVR_DLL "${PROJECT_SOURCE_DIR}/libs/openvr/bin/win64/openvr_api.dll")
-	message("Copying ${OPENVR_DLL} to ${CMAKE_CURRENT_BINARY_DIR}")
+	message("Copying ${OPENVR_DLL} to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
     file(
         COPY ${OPENVR_DLL}
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     )
 endif()
+
+file (
+  COPY "${PROJECT_SOURCE_DIR}/actions.json"
+  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+file (
+  COPY "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
+  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
 
 # Enable all warnings and treat them as errors
 if(MSVC)
@@ -170,8 +180,3 @@ endif()
 target_compile_options(stereo ${WARNING_FLAGS})
 target_compile_options(stereo-static ${WARNING_FLAGS})
 target_compile_options(stereo-world ${WARNING_FLAGS})
-
-file(
-    COPY ${OPENVR_DLL}
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-)

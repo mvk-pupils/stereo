@@ -93,6 +93,19 @@ file(
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+# Shader Source
+add_executable(shader_embedder src/tools/shaderembedder.cpp)
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp
+    COMMAND shader_embedder
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment_shader.frag frag
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex_shader.vert vert
+    DEPENDS shader_embedder
+    COMMENT "Generating shader header..."
+)
+add_custom_target(shader_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp)
+
 # Stereo Library
 set(STEREO_SOURCES
     src/stb_image.cpp
@@ -103,7 +116,9 @@ set(STEREO_SOURCES
     src/framebuffer.cpp
 )
 
-set(STEREO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(STEREO_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 set(STEREO_INCLUDES
     PUBLIC ${STEREO_INCLUDE_DIR}
     PUBLIC ${GLEW_INCLUDE_DIRS}
@@ -119,6 +134,9 @@ set(STEREO_LIBRARIES
 
 add_library(stereo SHARED ${STEREO_SOURCES})
 add_library(stereo-static STATIC ${STEREO_SOURCES})
+
+add_dependencies(stereo shader_header)
+add_dependencies(stereo-static shader_header)
 
 target_include_directories(stereo ${STEREO_INCLUDES})
 target_include_directories(stereo-static ${STEREO_INCLUDES})

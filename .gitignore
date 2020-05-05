@@ -3,3 +3,4 @@ docs/
 .vs/
 **/*.swp
 **/*.mp4
+include/shadersource.hpp

@@ -21,6 +21,16 @@ set(ICONIC_LIBRARIES
 )
 set(ICONIC_INCLUDE_DIR "$ENV{ICONICPATH}/IconicGpu/include")
 
+file(GLOB ICONIC_DLL_LIST "$ENV{ICONICPATH}/IconicGpu/x64/Release/*.dll")
+message("DLLS: ${ICONIC_DLL_LIST}")
+foreach(ICONIC_DLL ${ICONIC_DLL_LIST})
+    message("DLL: ${ICONIC_DLL}")
+    file(
+        COPY "${ICONIC_DLL}"
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    )
+endforeach(ICONIC_DLL)
+
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 

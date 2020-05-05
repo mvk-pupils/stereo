@@ -1,0 +1,44 @@
+{
+   "action_manifest_version" : 0,
+   "alias_info" : {},
+   "app_key" : "system.generated.stereo-world.exe",
+   "bindings" : {
+      "/actions/playback" : {
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/playback/in/play_pause"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/gamepad/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/playback/in/fastforward"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/gamepad/input/dpad_right"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/playback/in/stop"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/gamepad/input/b"
+            }
+         ]
+      }
+   },
+   "category" : "steamvr_input",
+   "controller_type" : "gamepad",
+   "description" : "",
+   "name" : "default_gamepad_actions",
+   "options" : {},
+   "simulated_actions" : []
+}

@@ -1,0 +1,40 @@
+{
+   "action_sets" : [
+      {
+         "name" : "/actions/playback",
+         "usage" : "single"
+      }
+   ],
+   "actions" : [
+      {
+         "name" : "/actions/playback/in/play_pause",
+         "requirement" : "suggested",
+         "type" : "boolean"
+      },
+      {
+         "name" : "/actions/playback/in/fastforward",
+         "requirement" : "suggested",
+         "type" : "boolean"
+      },
+      {
+         "name" : "/actions/playback/in/stop",
+         "requirement" : "suggested",
+         "type" : "boolean"
+      }
+   ],
+   "default_bindings" : [
+      {
+         "binding_url" : "gamepad_bindings.json",
+         "controller_type" : "gamepad"
+      }
+   ],
+   "localization" : [
+      {
+         "/actions/playback" : "Playback",
+         "/actions/playback/in/fastforward" : "Fast forward",
+         "/actions/playback/in/play_pause" : "Play/Pause",
+         "/actions/playback/in/stop" : "Stop",
+         "language_tag" : "en_us"
+      }
+   ]
+}

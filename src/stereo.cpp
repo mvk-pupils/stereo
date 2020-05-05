@@ -9,6 +9,8 @@
 #include "util.hpp"
 #include "gl.h"
 
+#include <windows.h>
+
 const char* VERTEX_SOURCE = R"(
 #version 330 core
 
@@ -54,6 +56,18 @@ vr::IVRSystem* init_openvr() {
     return openvr;
 }
 
+std::string get_executable_dir() {
+    const auto MAX_SIZE = 1024;
+    char raw_executable_path[MAX_SIZE] = { 0 };
+    GetModuleFileNameA(NULL, raw_executable_path, MAX_SIZE);
+    auto executable_path = std::string(raw_executable_path);
+    auto last_slash = executable_path.find_last_of('\\');
+    if (last_slash != std::string::npos) {
+        return executable_path.substr(0, last_slash);
+    }
+    return executable_path;
+}
+
 void Stereo::display_video(VideoDecoder* decoder) {
   if (glewInit()) {
     ERROR("Failed to load OpenGL");
@@ -69,8 +83,62 @@ void Stereo::display_video(VideoDecoder* decoder) {
   openvr->GetRecommendedRenderTargetSize(&width, &height);
   auto stereo = Stereo(width, height, decoder, openvr);
 
+  auto executable_dir = get_executable_dir();
+  auto action_path = executable_dir + "\\actions.json";
+  DEBUG("ACTION: %s", action_path.c_str());
+  vr::VRInput()->SetActionManifestPath(action_path.c_str());
+
+  vr::VRActionHandle_t play_action, ffw_action, stop_action;
+  vr::VRInput()->GetActionHandle("/actions/playback/in/play_pause", &play_action);
+  vr::VRInput()->GetActionHandle("/actions/playback/in/fastforward", &ffw_action);
+  vr::VRInput()->GetActionHandle("/actions/playback/in/stop", &stop_action);
+
+  vr::VRActionSetHandle_t playback_set;
+  vr::VRInput()->GetActionSetHandle("/actions/playback", &playback_set);
+
+
   Frame frame;
   while(true){
+      vr::VRActiveActionSet_t active_set;
+      active_set.ulActionSet = playback_set;
+      active_set.ulRestrictedToDevice = vr::k_ulInvalidActionHandle;
+      active_set.nPriority = 0;
+
+      vr::VRInput()->UpdateActionState(&active_set, sizeof(active_set), 1);
+
+      vr::InputDigitalActionData_t action_data;
+      vr::VRInput()->GetDigitalActionData(play_action, &action_data, sizeof(action_data), vr::k_ulInvalidActionHandle);
+
+      static Playback playback = Playback::PLAY;
+      auto update_playback = [&](Playback next) {
+          if (next != playback) decoder->set_playback(next), playback = next;
+      };
+
+      if (action_data.bChanged && action_data.bState) {
+          if (playback != Playback::PAUSE) {
+              update_playback(Playback::PAUSE);
+          } else {
+              update_playback(Playback::PLAY);
+          }
+      }
+
+      vr::VRInput()->GetDigitalActionData(ffw_action, &action_data, sizeof(action_data), vr::k_ulInvalidActionHandle);
+
+    if (action_data.bChanged && action_data.bState) {
+        if (playback != Playback::FFW) {
+            update_playback(Playback::FFW);
+        } else {
+            update_playback(Playback::PLAY);
+        }
+    }
+
+    vr::VRInput()->GetDigitalActionData(stop_action, &action_data, sizeof(action_data), vr::k_ulInvalidActionHandle);
+
+    if (action_data.bChanged && action_data.bState) {
+        INFO("STOP");
+        break;
+    }
+
     auto next_frame = decoder->next_frame();
     if (next_frame.texture != 0) {
       frame = next_frame;

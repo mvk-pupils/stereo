@@ -62,6 +62,28 @@ include_directories(${OPENGL_INCLUDE_DIR})
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
+
+# OpenVR
+if(WIN32)
+    set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
+endif()
+
+find_library(OPENVR_LIBRARY
+    NAMES
+        openvr_api OpenVR
+    PATHS
+        libs/openvr/bin
+        libs/openvr/lib
+    PATH_SUFFIXES
+        osx64
+        linux64
+        ${WINDOWS_PATH_SUFFIXES}
+    NO_DEFAULT_PATH
+    NO_CMAKE_FIND_ROOT_PATH
+)
+set(OPENVR_INCLUDE_DIR libs/openvr/headers)
+
+
 # Resources
 file(
     COPY ${CMAKE_CURRENT_SOURCE_DIR}/img
@@ -98,11 +120,13 @@ set(STEREO_INCLUDES
     PUBLIC ${STEREO_INCLUDE_DIR}
     PUBLIC ${GLEW_INCLUDE_DIRS}
     PUBLIC ${OPENGL_INCLUDE_DIRS}
+    PUBLIC ${OPENVR_INCLUDE_DIR}
 )
 
 set(STEREO_LIBRARIES
     ${GLEW_LIBRARIES}
     ${OPENGL_LIBRARIES}
+    ${OPENVR_LIBRARY}
 )
 
 add_library(stereo SHARED ${STEREO_SOURCES})

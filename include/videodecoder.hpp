@@ -3,9 +3,9 @@
 struct Frame {
 
   GLuint texture = 0; //OpenGL texture
-  int number; //frame index
-  int width;
-  int height;
+  int number = -1; //frame index
+  int width = -1;
+  int height = -1;
 
 };
 

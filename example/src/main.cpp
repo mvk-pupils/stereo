@@ -26,7 +26,7 @@ public:
     Canvas(int width, int height, int stream_number = 0): 
         ImageGLBase(width, height, width, height, true, stream_number, ImageGLBase::PixelFormat::BGRA_PIXEL_FORMAT),
         stream_number(stream_number),
-        window(Window::open(width, height)),
+        window(Window::open(width, height, WindowMode::HIDDEN)),
         width(width),
         height(height)
     {
@@ -64,22 +64,29 @@ class VideoStream : public VideoDecoder {
     Playback playback;
     std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
 
+    int frame_number;
+
 public:
 
-    VideoStream(char* video_path) {
+    VideoStream(const char* video_path) {
         this->previous_frame_time = std::chrono::high_resolution_clock::now();
 
         this->playback = Playback::PLAY;
         this->decoder = GpuVideoDecoder::Create();
         int stream_number = 0;
-        this->decoder->LoadVideo(video_path);
 
-        auto width = decoder->GetVideoWidth();
-        auto height = decoder->GetVideoHeight();
+        // Temporarily allocate a new string, because for <reasons...> `LoadVideo` only accepts `char*` and not `const char*`
+        auto tmp_path = std::string(video_path);
+        this->decoder->LoadVideo(&tmp_path[0]);
+
+        int width = decoder->GetVideoWidth();
+        int height = decoder->GetVideoHeight();
         this->canvas = new Canvas(width, height);
 
         this->canvas->ProcessBeforePaint(EOperation::texture | EOperation::pyramid | EOperation::gpuimage);
         decoder->Start(this->canvas);
+
+        this->frame_number = 0;
     }
     
     virtual Frame next_frame() override
@@ -104,6 +111,10 @@ public:
             spacetime::GpuStreamPtr pStream = spacetime::GpuProcessor::Get(GpuContext::Get())->GetStream(0);
             if (pStream) {
                 frame.texture = pStream->GetGLTexture(ORIGINAL);
+                frame.width = this->decoder->GetVideoWidth();
+                frame.height = this->decoder->GetVideoHeight();
+                frame.number = this->frame_number;
+                this->frame_number++;
             }
         }
 
@@ -136,7 +147,7 @@ int main(int argc, const char* argv[]) {
   try {
     printf("Stereo Example Executable (SEE)\n\n");
 
-    auto video_stream = new VideoStream("img/roller_coaster.mp4");
+    auto video_stream = new VideoStream(arguments.video_path);
     Stereo::display_video(video_stream);
 
     printf("Bye\n");

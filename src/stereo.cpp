@@ -115,8 +115,7 @@ void Stereo::display_video(VideoDecoder* decoder) {
 
     Viewport base;
     base.texture = frame.texture;
-    base.width = width / 2;
-    base.height = height;
+    base.aspect = 0.5 * float(frame.width) / float(frame.height);
     base.rectangle.left = 0.0f;
     base.rectangle.right = 1.0f;
     base.rectangle.top = 0.0f;
@@ -162,28 +161,9 @@ StereoView Stereo::draw(StereoViewport viewport) {
 
   this->right.unbind();
 
-
-  // Blit to screen
-  this->left.bind(GL_READ_FRAMEBUFFER);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBlitFramebuffer(
-      0, 0, this->left.width(), this->left.height(),
-      0, 0, this->left.width(), this->left.height(),
-      GL_COLOR_BUFFER_BIT, GL_LINEAR
-    );
-
-  this->right.bind(GL_READ_FRAMEBUFFER);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBlitFramebuffer(
-      0, 0, this->right.width(), this->right.height(),
-      this->left.width(), 0, this->right.width(), this->right.height(),
-      GL_COLOR_BUFFER_BIT, GL_LINEAR
-    );
-
   StereoView view;
   view.left.texture = this->left.get_color_texture();
   view.right.texture = this->right.get_color_texture();
-
 
   // Display to the vr headset
   if (this->openvr) {
@@ -203,13 +183,24 @@ void Stereo::render_scene(Viewport viewport, vr::Hmd_Eye eye) {
     glClear(GL_COLOR_BUFFER_BIT);
     ScissorRectangle r = viewport.rectangle;
 
-    float width = 1.0;
-    float height = 1.0;
+    float width;
+    float height;
 
-    float left = -0.5;
-    float top = 0.33;
-    float right = left + width;
-    float bottom = top - height;
+    if (viewport.aspect > 1.0) {
+        width = 1.0;
+        height = 1.0 / viewport.aspect;
+    } else {
+        width = viewport.aspect;
+        height = 1.0;
+    }
+
+    float x = 0.0;
+    float y = 0.0;
+
+    float left = x - width / 2.0;
+    float right = x + width / 2.0;
+    float bottom = y - height / 2.0;
+    float top = y + height / 2.0;
 
     float depth = 0.8;
 

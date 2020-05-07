@@ -2,6 +2,11 @@
 #include <vector>
 #include <memory>
 
+enum class WindowMode {
+    VISIBLE,
+    HIDDEN,
+};
+
 struct WindowState {
 	/// A list of the currently pressed keys.
 	std::vector<int> pressed_keys;
@@ -23,7 +28,7 @@ class Window {
     ///
     /// @param width The width of the window.
     /// @param height The height of the window.
-    static Window open(int width, int height);
+    static Window open(int width, int height, WindowMode mode = WindowMode::VISIBLE);
 
     /// Set this thread's OpenGL context to point to this window.
     void make_context_current();

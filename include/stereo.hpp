@@ -26,12 +26,12 @@ struct ScissorRectangle {
 
 /// The position and size of a viewport (an eye).
 struct Viewport {
-  /// The width and height of the resulting rendered view.
-  GLuint width, height;
-  /// The texture (a frame of video) to display.
-  GLuint texture;
-  /// The subsection of the frame to display.
-  ScissorRectangle rectangle;
+    /// The texture (a frame of video) to display.
+    GLuint texture;
+    /// Aspect ratio of the texture. (width / height)
+    float aspect;
+    /// The subsection of the frame to display.
+    ScissorRectangle rectangle;
 };
 
 /// The position and size of the eyes/cameras.

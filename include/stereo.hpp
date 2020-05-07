@@ -40,11 +40,18 @@ struct StereoViewport {
   Viewport right;
 };
 
+struct UniformLocations {
+    GLuint eye;
+    GLuint proj;
+    GLuint view;
+};
+
 /// Main entry point for the stereo display.
 class Stereo {
   private:
     /// Create a new display.
     Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr);
+
 
     VideoDecoder* decoder;
 
@@ -59,6 +66,12 @@ class Stereo {
     /// Framebuffer for the right eye.
     Framebuffer right;
 
+    /// Transformation matrix for the VR headset in the world.
+    float hmd_transformation[16];
+
+    /// GLSL shader binding points for all uniforms
+    UniformLocations locations;
+
   public:
     /// Initialize the library and construct a new handle.
     /// @returns A handle to the library.
@@ -66,6 +79,9 @@ class Stereo {
 
   private:
     void render_scene(Viewport viewport, vr::Hmd_Eye eye);
+
+    /// Update the position of the headeset within the world.
+    void update_hmd_pose();
 
     /// Draw the stereo display.
     /// @param viewport How to render each eye.

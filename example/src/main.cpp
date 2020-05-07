@@ -129,12 +129,12 @@ public:
     virtual int total_frames() override
     {
         // TODO
-        return 0;
+        return -1;
     }
 
     virtual double frame_rate() override
     {
-        // despite what the documentation says `GetFrameRate` actually returns seconds per frame.
+        // FIXME: despite what the documentation says `GetFrameRate` actually returns seconds per frame.
         auto seconds_per_frame = this->decoder->GetFrameRate();
         return seconds_per_frame == 0 ? 0 : 1.0 / seconds_per_frame;
     }

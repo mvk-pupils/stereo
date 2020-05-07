@@ -102,6 +102,8 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment_shader.frag frag
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex_shader.vert vert
     DEPENDS shader_embedder
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment_shader.frag
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex_shader.vert
     COMMENT "Generating shader header..."
 )
 add_custom_target(shader_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp)

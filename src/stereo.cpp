@@ -65,7 +65,6 @@ void Stereo::display_video(VideoDecoder* decoder) {
   vr::VRActionSetHandle_t playback_set;
   vr::VRInput()->GetActionSetHandle("/actions/playback", &playback_set);
 
-
   Frame frame;
   while(true){
       vr::VRActiveActionSet_t active_set;
@@ -113,6 +112,8 @@ void Stereo::display_video(VideoDecoder* decoder) {
       frame = next_frame;
     }
 
+    stereo.update_hmd_pose();
+
     Viewport base;
     base.texture = frame.texture;
     base.aspect = 0.5 * float(frame.width) / float(frame.height);
@@ -126,6 +127,7 @@ void Stereo::display_video(VideoDecoder* decoder) {
     viewport.left.rectangle.right = 0.5f;
     viewport.right = base;
     viewport.right.rectangle.left = 0.5f;
+
     stereo.draw(viewport);
   }
 }
@@ -137,16 +139,44 @@ Stereo::Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* open
   openvr(openvr),
   decoder(decoder)
 {
+    this->locations.eye = this->program.get_location("eye");
+    this->locations.proj = this->program.get_location("proj");
+    this->locations.view = this->program.get_location("view");
+}
+
+void openvr34_to_opengl_matrix(vr::HmdMatrix34_t vr, float* gl) {
+    float matrix[16] = {
+        vr.m[0][0], vr.m[1][0], vr.m[2][0], 0.0f,
+        vr.m[0][1], vr.m[1][1], vr.m[2][1], 0.0f,
+        vr.m[0][2], vr.m[1][2], vr.m[2][2], 0.0f,
+        vr.m[0][3], vr.m[1][3], vr.m[2][3], 1.0f,
+    };
+
+    memcpy(gl, matrix, sizeof(matrix));
+}
+
+void Stereo::update_hmd_pose() {
+    vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
+    vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+
+    auto pose = poses[vr::k_unTrackedDeviceIndex_Hmd];
+    if (pose.bPoseIsValid) {
+        openvr34_to_opengl_matrix(pose.mDeviceToAbsoluteTracking, this->hmd_transformation);
+    }
 }
 
 StereoView Stereo::draw(StereoViewport viewport) {
   this->program.use();
 
+  glUniformMatrix4fv(this->locations.view, 1, false, this->hmd_transformation);
+
+
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
   // Left eye
   this->left.bind();
 
   glViewport(0, 0, this->left.width(), this->left.height());
-  glClearColor(0.77f, 0.62f, 0.78f, 1.0f);
   this->render_scene(viewport.left, vr::Eye_Left);
 
   this->left.unbind();
@@ -156,7 +186,6 @@ StereoView Stereo::draw(StereoViewport viewport) {
   this->right.bind();
 
   glViewport(0, 0, this->right.width(), this->right.height());
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   this->render_scene(viewport.right, vr::Eye_Right);
 
   this->right.unbind();
@@ -170,8 +199,6 @@ StereoView Stereo::draw(StereoViewport viewport) {
       vr::Texture_t left = { (void*)(uintptr_t)view.left.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
       vr::Texture_t right = { (void*)(uintptr_t)view.right.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 
-      vr::VRCompositor()->WaitGetPoses(nullptr, 0, nullptr, 0);
-
       vr::VRCompositor()->Submit(vr::Eye_Left, &left);
       vr::VRCompositor()->Submit(vr::Eye_Right, &right);
   }
@@ -183,26 +210,24 @@ void Stereo::render_scene(Viewport viewport, vr::Hmd_Eye eye) {
     glClear(GL_COLOR_BUFFER_BIT);
     ScissorRectangle r = viewport.rectangle;
 
-    float width;
-    float height;
+    float width = 2.0;
+    float height = 2.0;
 
     if (viewport.aspect > 1.0) {
-        width = 1.0;
-        height = 1.0 / viewport.aspect;
+        height /= viewport.aspect;
     } else {
-        width = viewport.aspect;
-        height = 1.0;
+        width *= viewport.aspect;
     }
 
     float x = 0.0;
-    float y = 0.0;
+    float y = 1.2;
 
     float left = x - width / 2.0;
     float right = x + width / 2.0;
     float bottom = y - height / 2.0;
     float top = y + height / 2.0;
 
-    float depth = 0.8;
+    float depth = 1.5;
 
     Vertex vertices[] = {
         {{left, top, -depth}, {1,1,1,1}, {r.left, r.top}},
@@ -218,21 +243,13 @@ void Stereo::render_scene(Viewport viewport, vr::Hmd_Eye eye) {
         2, 3, 0
     };
 
-    auto eth = this->openvr->GetEyeToHeadTransform(eye);
-    float view_matrix[16] = {
-        eth.m[0][0], eth.m[1][0], eth.m[2][0], 0.0f,
-        eth.m[0][1], eth.m[1][1], eth.m[2][1], 0.0f,
-        eth.m[0][2], eth.m[1][2], eth.m[2][2], 0.0f,
-        eth.m[0][3], eth.m[1][3], eth.m[2][3], 1.0f,
-    };
+    float eye_matrix[16];
+    openvr34_to_opengl_matrix(this->openvr->GetEyeToHeadTransform(eye), eye_matrix);
+    glUniformMatrix4fv(this->locations.eye, 1, false, eye_matrix);
 
     auto projection_matrix = this->openvr->GetProjectionMatrix(eye, 0.1, 5.0);
+    glUniformMatrix4fv(this->locations.proj, 1, false, &projection_matrix.m[0][0]);
 
-    auto eye_location = this->program.get_location("eye");
-    glUniformMatrix4fv(eye_location, 1, false, view_matrix);
-
-    auto proj_location = this->program.get_location("proj");
-    glUniformMatrix4fv(proj_location, 1, false, &projection_matrix.m[0][0]);
 
     Mesh mesh = Mesh::create();
     mesh.set_vertices(4, vertices);

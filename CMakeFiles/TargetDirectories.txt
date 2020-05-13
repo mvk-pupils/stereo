@@ -1,0 +1,13 @@
+C:/Users/krist/Desktop/MVK/stereo/CMakeFiles/stereo.dir
+C:/Users/krist/Desktop/MVK/stereo/CMakeFiles/stereo-static.dir
+C:/Users/krist/Desktop/MVK/stereo/CMakeFiles/INSTALL.dir
+C:/Users/krist/Desktop/MVK/stereo/CMakeFiles/ALL_BUILD.dir
+C:/Users/krist/Desktop/MVK/stereo/CMakeFiles/ZERO_CHECK.dir
+C:/Users/krist/Desktop/MVK/stereo/example/CMakeFiles/stereo-world.dir
+C:/Users/krist/Desktop/MVK/stereo/example/CMakeFiles/INSTALL.dir
+C:/Users/krist/Desktop/MVK/stereo/example/CMakeFiles/ALL_BUILD.dir
+C:/Users/krist/Desktop/MVK/stereo/example/glfw/CMakeFiles/uninstall.dir
+C:/Users/krist/Desktop/MVK/stereo/example/glfw/CMakeFiles/INSTALL.dir
+C:/Users/krist/Desktop/MVK/stereo/example/glfw/CMakeFiles/ALL_BUILD.dir
+C:/Users/krist/Desktop/MVK/stereo/example/glfw/src/CMakeFiles/glfw.dir
+C:/Users/krist/Desktop/MVK/stereo/example/glfw/src/CMakeFiles/INSTALL.dir

@@ -1,0 +1,8 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.17/Modules/FindBoost.cmake
+C:/Program Files/CMake/share/cmake-3.17/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.17/Modules/FindPackageMessage.cmake
+C:/Users/krist/Desktop/MVK/stereo/example/CMakeLists.txt
+C:/Users/krist/vcpkg/installed/x64-windows/share/eigen3/Eigen3Config.cmake
+C:/Users/krist/vcpkg/installed/x64-windows/share/eigen3/Eigen3ConfigVersion.cmake
+C:/Users/krist/vcpkg/installed/x64-windows/share/eigen3/Eigen3Targets.cmake

@@ -27,4 +27,3 @@ class Program {
     /// Get the location of a uniform in the shader.
     GLuint get_location(char* name);
 };
-

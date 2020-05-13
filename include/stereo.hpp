@@ -20,8 +20,9 @@ struct StereoView {
   View right;
 };
 
+/// A rectangle for selecting a subsection of the input video.
 struct ScissorRectangle {
-    float left, right, top, bottom;
+  float left, right, top, bottom;
 };
 
 /// The position and size of a viewport (an eye).
@@ -46,9 +47,10 @@ class Stereo {
     /// Create a new display.
     Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr);
 
+    /// Pointer to a video decoder provided by the user.
     VideoDecoder* decoder;
 
-    /// OpenVR handle
+    /// OpenVR handle.
     vr::IVRSystem* openvr;
 
     /// Shader program to display the screen.
@@ -60,11 +62,11 @@ class Stereo {
     Framebuffer right;
 
   public:
-    /// Initialize the library and construct a new handle.
-    /// @returns A handle to the library.
+    /// Initialize the library and display a video to the user.
     static void display_video(VideoDecoder*);
 
   private:
+    /// Displays a video frame for a specific eye.
     void render_scene(Viewport viewport, vr::Hmd_Eye eye);
 
     /// Draw the stereo display.

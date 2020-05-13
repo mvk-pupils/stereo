@@ -4,6 +4,7 @@
 
 #include <memory>
 
+/// Wrapper for an OpenGL texture.
 class Texture {
   private:
     Texture(GLuint texture);

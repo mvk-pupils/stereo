@@ -146,13 +146,15 @@ target_include_directories(stereo-static ${STEREO_INCLUDES})
 target_link_libraries(stereo ${STEREO_LIBRARIES})
 target_link_libraries(stereo-static ${STEREO_LIBRARIES})
 
+# Set the prefix to use when printing logging information
 target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo")
+target_compile_definitions(stereo-static INTERFACE LOG_SOURCE_MODULE="stereo")
 
 
 # Add example executable directories
 add_subdirectory(example)
-target_compile_definitions(stereo PRIVATE LOG_SOURCE_MODULE="stereo-world")
 
+# Copy the OpenVR DLL to the output directory
 if(WIN32)
     set(OPENVR_DLL "${PROJECT_SOURCE_DIR}/libs/openvr/bin/win64/openvr_api.dll")
 	message("Copying ${OPENVR_DLL} to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
@@ -162,23 +164,14 @@ if(WIN32)
     )
 endif()
 
+# Copy OpenVR action bindings
 file (
   COPY "${PROJECT_SOURCE_DIR}/actions.json"
   DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
+# Copy default bindings for gamepad
 file (
   COPY "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
   DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
-
-# Enable all warnings and treat them as errors
-if(MSVC)
-    set(WARNING_FLAGS PRIVATE)
-else()
-    set(WARNING_FLAGS PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
-
-target_compile_options(stereo ${WARNING_FLAGS})
-target_compile_options(stereo-static ${WARNING_FLAGS})
-target_compile_options(stereo-world ${WARNING_FLAGS})

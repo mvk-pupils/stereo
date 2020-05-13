@@ -59,6 +59,9 @@ set(STEREO_BIN_LIBRARIES
     ${ICONIC_LIBRARIES}
 )
 
-add_executable(stereo-world ${STEREO_BIN_SOURCES})
+add_executable(stereo-world EXCLUDE_FROM_ALL ${STEREO_BIN_SOURCES})
 target_include_directories(stereo-world ${STEREO_BIN_INCLUDES})
 target_link_libraries(stereo-world ${STEREO_BIN_LIBRARIES})
+
+# Set the prefix to use when printing logging information
+target_compile_definitions(stereo-world PRIVATE LOG_SOURCE_MODULE="stereo-world")

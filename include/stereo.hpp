@@ -4,6 +4,9 @@
 #include "mesh.hpp"
 #include "texture.hpp"
 #include "framebuffer.hpp"
+#include "videodecoder.hpp"
+
+#include <openvr.h>
 
 /// A rasterized view of the scene.
 struct View {
@@ -41,26 +44,31 @@ struct StereoViewport {
 class Stereo {
   private:
     /// Create a new display.
-    Stereo(int width, int height);
+    Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr);
+
+    VideoDecoder* decoder;
+
+    /// OpenVR handle
+    vr::IVRSystem* openvr;
 
     /// Shader program to display the screen.
     Program program;
 
-    /// Framebuffer for the left eye. 
+    /// Framebuffer for the left eye.
     Framebuffer left;
-    /// Framebuffer for the right eye. 
+    /// Framebuffer for the right eye.
     Framebuffer right;
 
   public:
     /// Initialize the library and construct a new handle.
     /// @returns A handle to the library.
-    static Stereo init(int width, int height);
+    static void display_video(VideoDecoder*);
+
+  private:
+    void render_scene(Viewport viewport, vr::Hmd_Eye eye);
 
     /// Draw the stereo display.
     /// @param viewport How to render each eye.
     /// @returns Two framebuffers, one for each eye.
     StereoView draw(StereoViewport viewport);
-
-  private:
-    void render_scene(Viewport viewport);
 };

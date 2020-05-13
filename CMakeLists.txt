@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
 
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 # Pull down submodules
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
@@ -62,11 +65,46 @@ include_directories(${OPENGL_INCLUDE_DIR})
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
+
+# OpenVR
+if(WIN32)
+    set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
+endif()
+
+find_library(OPENVR_LIBRARY
+    NAMES
+        openvr_api OpenVR
+    PATHS
+        libs/openvr/bin
+        libs/openvr/lib
+    PATH_SUFFIXES
+        osx64
+        linux64
+        ${WINDOWS_PATH_SUFFIXES}
+    NO_DEFAULT_PATH
+    NO_CMAKE_FIND_ROOT_PATH
+)
+set(OPENVR_INCLUDE_DIR libs/openvr/headers)
+
+
 # Resources
 file(
     COPY ${CMAKE_CURRENT_SOURCE_DIR}/img
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+# Shader Source
+add_executable(shader_embedder src/tools/shaderembedder.cpp)
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp
+    COMMAND shader_embedder
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment_shader.frag frag
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex_shader.vert vert
+    DEPENDS shader_embedder
+    COMMENT "Generating shader header..."
+)
+add_custom_target(shader_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp)
 
 # Stereo Library
 set(STEREO_SOURCES
@@ -78,20 +116,27 @@ set(STEREO_SOURCES
     src/framebuffer.cpp
 )
 
-set(STEREO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(STEREO_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 set(STEREO_INCLUDES
     PUBLIC ${STEREO_INCLUDE_DIR}
     PUBLIC ${GLEW_INCLUDE_DIRS}
     PUBLIC ${OPENGL_INCLUDE_DIRS}
+    PUBLIC ${OPENVR_INCLUDE_DIR}
 )
 
 set(STEREO_LIBRARIES
     ${GLEW_LIBRARIES}
     ${OPENGL_LIBRARIES}
+    ${OPENVR_LIBRARY}
 )
 
 add_library(stereo SHARED ${STEREO_SOURCES})
 add_library(stereo-static STATIC ${STEREO_SOURCES})
+
+add_dependencies(stereo shader_header)
+add_dependencies(stereo-static shader_header)
 
 target_include_directories(stereo ${STEREO_INCLUDES})
 target_include_directories(stereo-static ${STEREO_INCLUDES})
@@ -105,18 +150,25 @@ target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo")
 # Add example executable directories
 add_subdirectory(example)
 target_compile_definitions(stereo PRIVATE LOG_SOURCE_MODULE="stereo-world")
-set_target_properties(stereo-world PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
 
 if(WIN32)
     set(OPENVR_DLL "${PROJECT_SOURCE_DIR}/libs/openvr/bin/win64/openvr_api.dll")
-	message("Copying ${OPENVR_DLL} to ${CMAKE_CURRENT_BINARY_DIR}")
+	message("Copying ${OPENVR_DLL} to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
     file(
         COPY ${OPENVR_DLL}
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     )
 endif()
+
+file (
+  COPY "${PROJECT_SOURCE_DIR}/actions.json"
+  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+file (
+  COPY "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
+  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
 
 # Enable all warnings and treat them as errors
 if(MSVC)
@@ -128,8 +180,3 @@ endif()
 target_compile_options(stereo ${WARNING_FLAGS})
 target_compile_options(stereo-static ${WARNING_FLAGS})
 target_compile_options(stereo-world ${WARNING_FLAGS})
-
-file(
-    COPY ${OPENVR_DLL}
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-)

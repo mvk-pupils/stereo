@@ -23,6 +23,7 @@ Window Window::open(int width, int height) {
   glfwWindowHint(GLFW_SAMPLES, 8);
 
   window.handle = glfwCreateWindow(width, height, "Stereo Example Executable", NULL, NULL);
+  glfwSwapInterval(0);
 
   window.setup_window_callbacks();
 

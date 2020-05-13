@@ -23,5 +23,8 @@ class Program {
 
     /// Bind this program to the OpenGL context. Unbinds any previous shaders.
     void use();
+
+    /// Get the location of a uniform in the shader.
+    GLuint get_location(char* name);
 };
 

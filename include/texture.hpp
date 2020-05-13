@@ -12,7 +12,7 @@ class Texture {
     std::shared_ptr<GLuint> texture;
 
   public:
-  
+
     /// Load a texture from an image.
     /// @param path The path to the image.
     static Texture load(const char* path);
@@ -20,4 +20,3 @@ class Texture {
     /// Bind the texture to the OpenGL context.
     void bind();
 };
-

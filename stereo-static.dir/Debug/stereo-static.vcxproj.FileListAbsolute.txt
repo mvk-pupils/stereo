@@ -1,2 +1,0 @@
-C:\Users\krist\Desktop\MVK\stereo\Debug\stereo-static.pdb
-C:\Users\krist\Desktop\MVK\stereo\stereo-static.dir\Debug\stereo-static.pdb

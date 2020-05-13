@@ -4,12 +4,14 @@ set(PROJECT_ROOT ${PROJECT_SOURCE_DIR})
 
 project(stereo-world)
 
+find_package(GLFW3)
+
 # GLFW
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(${PROJECT_ROOT}/libs/glfw glfw)
-set(GLFW_INCLUDE_DIR ${PROJECT_ROOT}/libs/glfw/include)
+# set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+# set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+# set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+# add_subdirectory(${PROJECT_ROOT}/libs/glfw glfw)
+# set(GLFW_INCLUDE_DIR ${PROJECT_ROOT}/libs/glfw/include)
 
 
 # Iconic API (proprietary)

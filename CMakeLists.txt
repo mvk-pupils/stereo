@@ -7,31 +7,7 @@ option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
-# Pull down submodules
-find_package(Git QUIET)
-if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-# Update submodules as needed
-    option(GIT_SUBMODULE "Check submodules during build" ON)
-    if(GIT_SUBMODULE)
-        message(STATUS "Submodule update")
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
-        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-        endif()
-    endif()
-endif()
-
-
-# Try to guess the platform architecture.
-if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-    set(PLATFORM 64)
-else()
-    set(PLATFORM 32)
-endif()
-
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 
 # Build the documentation
 if (BUILD_DOCUMENTATION)
@@ -60,32 +36,12 @@ endif (BUILD_DOCUMENTATION)
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
-
 # GLEW
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
-
 # OpenVR
-if(WIN32)
-    set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
-endif()
-
-find_library(OPENVR_LIBRARY
-    NAMES
-        openvr_api OpenVR
-    PATHS
-        libs/openvr/bin
-        libs/openvr/lib
-    PATH_SUFFIXES
-        osx64
-        linux64
-        ${WINDOWS_PATH_SUFFIXES}
-    NO_DEFAULT_PATH
-    NO_CMAKE_FIND_ROOT_PATH
-)
-set(OPENVR_INCLUDE_DIR libs/openvr/headers)
-
+find_package(OpenVR REQUIRED)
 
 # Resources
 file(
@@ -131,7 +87,7 @@ set(STEREO_INCLUDES
 set(STEREO_LIBRARIES
     ${GLEW_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${OPENVR_LIBRARY}
+    ${OpenVR_LIBRARY}
 )
 
 add_library(stereo SHARED ${STEREO_SOURCES})
@@ -154,24 +110,15 @@ target_compile_definitions(stereo-static INTERFACE LOG_SOURCE_MODULE="stereo")
 # Add example executable directories
 add_subdirectory(example)
 
-# Copy the OpenVR DLL to the output directory
-if(WIN32)
-    set(OPENVR_DLL "${PROJECT_SOURCE_DIR}/libs/openvr/bin/win64/openvr_api.dll")
-	message("Copying ${OPENVR_DLL} to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    file(
-        COPY ${OPENVR_DLL}
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    )
-endif()
 
 # Copy OpenVR action bindings
-file (
+file(
   COPY "${PROJECT_SOURCE_DIR}/actions.json"
   DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # Copy default bindings for gamepad
-file (
+file(
   COPY "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
   DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )

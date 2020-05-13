@@ -2,7 +2,6 @@
 
 #include "shader.hpp"
 #include "mesh.hpp"
-#include "texture.hpp"
 #include "framebuffer.hpp"
 #include "videodecoder.hpp"
 

@@ -5,9 +5,12 @@ set(CMAKE_CXX_STANDARD 11)
 
 option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
 
-
+# Set the output directory for build artifacts
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+# Set the path to CMake scripts used for finding packages.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
+
 
 # Build the documentation
 if (BUILD_DOCUMENTATION)
@@ -43,11 +46,6 @@ find_package(OpenGL REQUIRED)
 # OpenVR
 find_package(OpenVR REQUIRED)
 
-# Resources
-file(
-    COPY ${CMAKE_CURRENT_SOURCE_DIR}/img
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-)
 
 # Shader Source
 add_executable(shader_embedder src/tools/shaderembedder.cpp)
@@ -66,11 +64,9 @@ add_custom_target(shader_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/
 
 # Stereo Library
 set(STEREO_SOURCES
-    src/stb_image.cpp
     src/stereo.cpp
     src/shader.cpp
     src/mesh.cpp
-    src/texture.cpp
     src/framebuffer.cpp
 )
 
@@ -111,14 +107,14 @@ target_compile_definitions(stereo-static INTERFACE LOG_SOURCE_MODULE="stereo")
 add_subdirectory(example)
 
 
-# Copy OpenVR action bindings
-file(
-  COPY "${PROJECT_SOURCE_DIR}/actions.json"
-  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+add_custom_command ( TARGET stereo POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${PROJECT_SOURCE_DIR}/actions.json"
+        $<TARGET_FILE_DIR:stereo>
 )
 
-# Copy default bindings for gamepad
-file(
-  COPY "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
-  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+add_custom_command ( TARGET stereo POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
+        $<TARGET_FILE_DIR:stereo>
 )

@@ -8,22 +8,16 @@
 
 ### Dependencies
 
-- Git
 - OpenGL
 - GLEW
-
-> Note: Git is required to pull down other external dependencies such as OpenVR.
-> See a commplete list below.
-
-#### Dependencies fetched by Git
-
-- GLFW
 - OpenVR
 
 
-#### Optional
+#### Optional (for documentation and example executable)
 
 - Doxygen
+- GLFW
+- I-CONIC Vision Video Decoder (proprietary)
 
 
 ### Using CMake
@@ -36,15 +30,17 @@ $ cmake --build .
 ```
 
 > Note: if you are using vcpkg, remember to specify the `-DCMAKE_TOOLCHAIN_FILE`
-> flag to point to your vcpkg bulid system [INSERT LINK HERE].
+> flag to point to your [vcpkg bulid system](https://github.com/Microsoft/vcpkg#quick-start).
 
 
-### Disabling Doxygen
+## Building Documentation with Doxygen
 
-If you don't want to build the documentation run cmake with:
+You can build the documentation by running
 
 ```
-$ cmake .. -D BUILD_DOCUMENTATION=OFF
+$ mkdir build
+$ cd build
+$ cmake .. -D BUILD_DOCUMENTATION=ON
 ```
 
 
@@ -53,15 +49,12 @@ $ cmake .. -D BUILD_DOCUMENTATION=OFF
 The executable depends on ICONIC Vision's proprietary library which neeeds to be
 built beforehand. Refer to the instructions in their documentation. 
 
-1. Set the `ICONICPATH` environment variable to the path of the library source.
+Set the `ICONICPATH` environment variable to the path of the library source for
+ICONIC's library.
 
-2. Run cmake using `cmake <source_directory>
-   -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake`
-   where `source_directory` is the root of this repository and `<path_to_vcpkg>`
-   is the path to the vcpkg installation directory, eg:
-   `C:/Users/<your_username>/vcpkg/scripts/buildsystems/vcpkg.cmake`
-
-3. Build the solution using your preferred build system (eg. `cmake --build .`).
-
-4. At this point there may be some DLLs missing from the build directory.  Copy
-   these from where you built ICONIC's library next to the executable.
+```
+$ mkdir build
+$ cd build
+$ cmake ..
+$ cmake --build . --target stereo-world
+```

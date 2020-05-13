@@ -23,7 +23,7 @@ Window Window::open(int width, int height, WindowMode mode) {
   auto visible = mode == WindowMode::HIDDEN ? GLFW_FALSE : GLFW_TRUE;
   glfwWindowHint(GLFW_VISIBLE, visible);
 
-  glfwWindowHint(GLFW_SAMPLES, 8);
+  glfwWindowHint(GLFW_SAMPLES, 0);
 
   window.handle = glfwCreateWindow(width, height, "Stereo Example Executable", NULL, NULL);
   glfwSwapInterval(0);

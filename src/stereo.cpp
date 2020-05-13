@@ -25,6 +25,7 @@ vr::IVRSystem* init_openvr() {
     return openvr;
 }
 
+/// Gets the path to the current executable
 std::string get_executable_dir() {
     const auto MAX_SIZE = 1024;
     char raw_executable_path[MAX_SIZE] = { 0 };
@@ -50,7 +51,8 @@ void Stereo::display_video(VideoDecoder* decoder) {
   auto openvr = init_openvr();
   unsigned int width = 0, height = 0;
   openvr->GetRecommendedRenderTargetSize(&width, &height);
-  auto stereo = Stereo(width, height, decoder, openvr);
+  DEBUG("Size: %dx%d", width, height);
+  auto stereo = Stereo(2 * width, 2 * height, decoder, openvr);
 
   auto executable_dir = get_executable_dir();
   auto action_path = executable_dir + "\\actions.json";
@@ -64,6 +66,14 @@ void Stereo::display_video(VideoDecoder* decoder) {
 
   vr::VRActionSetHandle_t playback_set;
   vr::VRInput()->GetActionSetHandle("/actions/playback", &playback_set);
+
+  vr::VROverlayHandle_t overlay;
+  auto error = vr::VROverlay()->CreateOverlay("stereo-overlay", "Stereo Overlay", &overlay);
+  if(error) ERROR("Create Overlay: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
+  error = vr::VROverlay()->SetOverlayFlag(overlay, vr::VROverlayFlags::VROverlayFlags_MakeOverlaysInteractiveIfVisible, true);
+  if(error) ERROR("Set Overlay Flag: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
+  error = vr::VROverlay()->ShowOverlay(overlay);
+  if(error) ERROR("Show Overlay: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
 
   Frame frame;
   while(true){
@@ -134,8 +144,8 @@ void Stereo::display_video(VideoDecoder* decoder) {
 
 Stereo::Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr) :
   program(Program::compile(shader_vert, shader_frag)),
-  left(Framebuffer::create(width / 2, height)),
-  right(Framebuffer::create(width / 2, height)),
+  left(Framebuffer::create(width, height)),
+  right(Framebuffer::create(width, height)),
   openvr(openvr),
   decoder(decoder)
 {
@@ -210,8 +220,8 @@ void Stereo::render_scene(Viewport viewport, vr::Hmd_Eye eye) {
     glClear(GL_COLOR_BUFFER_BIT);
     ScissorRectangle r = viewport.rectangle;
 
-    float width = 2.0;
-    float height = 2.0;
+    float width = 1.5;
+    float height = 1.5;
 
     if (viewport.aspect > 1.0) {
         height /= viewport.aspect;

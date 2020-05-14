@@ -13,13 +13,6 @@
 - OpenVR
 
 
-#### Optional (for documentation and example executable)
-
-- Doxygen
-- GLFW
-- I-CONIC Vision Video Decoder (proprietary)
-
-
 ### Using CMake
 
 ```
@@ -35,6 +28,13 @@ $ cmake --build .
 
 ## Building Documentation with Doxygen
 
+### Dependencies
+
+- Doxygen - used to build the documentation.
+
+
+### Using CMake
+
 You can build the documentation by running
 
 ```
@@ -45,6 +45,14 @@ $ cmake .. -D BUILD_DOCUMENTATION=ON
 
 
 ## Building the example executable (Windows only)
+
+### Dependencies
+
+- GLFW - used to create an OpenGL context.
+- I-CONIC Vision Video Decoder (proprietary) - used to decode video files.
+
+
+### Using CMake
 
 The executable depends on ICONIC Vision's proprietary library which neeeds to be
 built beforehand. Refer to the instructions in their documentation. 

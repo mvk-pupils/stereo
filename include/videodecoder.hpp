@@ -30,10 +30,6 @@ public:
 
   virtual void set_playback(Playback) = 0;
 
-  /// Returns the number of frames in the whole video.
-  virtual int total_frames() = 0;
-
   /// Returns the number of frames per second.
   virtual double frame_rate() = 0;
-
 };

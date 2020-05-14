@@ -16,58 +16,74 @@
 #include "cli.hpp"
 #include "window.hpp"
 
-class Canvas : public ImageGLBase {
+/// Canvas represents a canvas which the textures from the video decoding is drawn to.
+///
+/// Canvas inherits from ImageGLBase, which provides functions render, refresh, SwapBuffers and SetCurrent().
+class Canvas : public ImageGLBase
+{
 public:
-    Window window;
-    int stream_number;
+  Window window;
+  int stream_number;
 
-    int width, height;
+  int width, height;
 
-    Canvas(int width, int height, int stream_number = 0): 
-        ImageGLBase(width, height, width, height, true, stream_number, ImageGLBase::PixelFormat::BGRA_PIXEL_FORMAT),
-        stream_number(stream_number),
-        window(Window::open(width, height, WindowMode::HIDDEN)),
-        width(width),
-        height(height)
-    {
-    }
+  /// @param width The width of the canvas
+  /// @param width The height of the canvas
+  /// @param stream_number A number identifying a certainstream. Defaults to 0.
+  Canvas(int width, int height, int stream_number = 0) : ImageGLBase(width, height, width, height, true, stream_number, ImageGLBase::PixelFormat::BGRA_PIXEL_FORMAT),
+                                                         stream_number(stream_number),
+                                                         window(Window::open(width, height, WindowMode::HIDDEN)),
+                                                         width(width),
+                                                         height(height)
+  {
+  }
 
-    // Inherited via ImageGLBase
-    virtual void render(int field_num, bool refresh) override
-    {
-        this->refresh();
-    }
+  /// Render - Inherited via ImageGLBase. Simply calls
+  /// @see refresh()
+  virtual void render(int field_num, bool refresh) override
+  {
+    this->refresh();
+  }
 
-    virtual void SetCurrent() override
-    {
-        // Init gl
-        this->window.make_context_current();
-    }
+  /// Makes the context of the specified window current for the calling thread.
+  /// @see make_context_current()
+  virtual void SetCurrent() override
+  {
+    /// Init gl
+    this->window.make_context_current();
+  }
 
-    virtual void refresh() override
-    {
-        this->window.poll_events();
-        this->window.swap_buffers();
-    }
+  /// Inherited via ImageGLBase
+  /// @see poll_events - Processes received events. The window and input callbacks associated with those events will be called.
+  /// @see swap_buffers - Swaps the front and back buffers of the specified window. The window buffers will be swapped.
+  virtual void refresh() override
+  {
+    this->window.poll_events();
+    this->window.swap_buffers();
+  }
 
-    virtual bool SwapBuffers() override
-    {
-        this->window.swap_buffers();
-        return true;
-    }
+  /// Inherited via ImageGLBase
+  virtual bool SwapBuffers() override
+  {
+    this->window.swap_buffers();
+    return true;
+  }
 };
 
-
-class VideoStream : public VideoDecoder {
-    GpuVideoDecoder* decoder;
-    Canvas* canvas;
-    Playback playback;
-    std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
+/// An example of a videodecoder to be used by the Stereo library to display the video.
+///
+/// Inherits from VideoDecoder. Creates a GpuVideoDecoder, loads the video from given PATH, creates a Canvas and starts the video.
+class VideoStream : public VideoDecoder
+{
+  GpuVideoDecoder *decoder;
+  Canvas *canvas;
+  Playback playback;
+  std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
 
     int frame_number;
 
 public:
-
+    /// @param video_path pointer to path of video file to be decoded.
     VideoStream(const char* video_path) {
         this->previous_frame_time = std::chrono::high_resolution_clock::now();
 
@@ -89,6 +105,10 @@ public:
         this->frame_number = 0;
     }
     
+    /// Gets a new frame from the video and renders it if enough time has passed since the last frame was rendered.
+    ///
+    /// Inherited from VideoDecoder. Rendering depends on seconds_per_frame, which is specified by @see frame_rate()
+    /// @returns the next frame
     virtual Frame next_frame() override
     {
         double frames_per_second = this->frame_rate();
@@ -99,7 +119,7 @@ public:
 
         bool bFramesDecoded = false;
 
-        bool should_render = (this->playback == Playback::PLAY && elapsed_seconds > seconds_per_frame) 
+        bool should_render = (this->playback == Playback::PLAY && elapsed_seconds > seconds_per_frame)
             || this->playback == Playback::FFW;
         if (should_render) {
             this->previous_frame_time = now;
@@ -121,15 +141,11 @@ public:
         return frame;
     }
 
+    /// Sets the playback to one of the given playback options.
+    /// @param playback The playback to switch to. E.g. PLAY, PAUSE, FFW
     virtual void set_playback(Playback playback) override
     {
         this->playback = playback;
-    }
-
-    virtual int total_frames() override
-    {
-        // TODO
-        return -1;
     }
 
     virtual double frame_rate() override
@@ -140,23 +156,30 @@ public:
     }
 };
 
-
-int main(int argc, const char* argv[]) {
+/// Provides an example of how to use the DLL.
+int main(int argc, const char *argv[])
+{
   auto arguments = parse_cli_arguments(argc, argv);
 
-  try {
+  try
+  {
     printf("Stereo Example Executable (SEE)\n\n");
 
     auto video_stream = new VideoStream(arguments.video_path);
     Stereo::display_video(video_stream);
 
     printf("Bye\n");
-  } catch (std::exception& e) {
+  }
+  catch (std::exception &e)
+  {
     printf("Error: %s\n", e.what());
-  } catch (const char* s) {
+  }
+  catch (const char *s)
+  {
     printf("Program error: %s\n", s);
-  } catch (...) {
+  }
+  catch (...)
+  {
     printf("There was an error.\n");
   }
 }
-

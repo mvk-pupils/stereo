@@ -52,11 +52,7 @@ class Stereo {
     /// Create a new display.
     Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr);
 
-<<<<<<< HEAD
-
-=======
     /// Pointer to a video decoder provided by the user.
->>>>>>> master
     VideoDecoder* decoder;
 
     /// OpenVR handle.

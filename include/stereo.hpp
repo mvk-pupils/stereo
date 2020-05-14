@@ -75,7 +75,7 @@ class Stereo {
     UniformLocations locations;
 
   public:
-    /// Initialize the library and display a video to the user.
+    /// Display an video using the provided decoder.
     static void EXPORT display_video(VideoDecoder*);
 
   private:

@@ -46,9 +46,9 @@ CliArguments parse_cli_arguments(int argc, const char* argv[]) {
         else if (arg == "-m" || arg == "--mode") {
             if (!next_argument(arg)) ERROR("expected <video_mode>");
 
-            if (arg == "side-by-side")
+            if (arg == "side-by-side" || arg == "sbs")
                 options.mode = VideoMode::SIDE_BY_SIDE;
-            else if (arg == "half-side-by-side")
+            else if (arg == "half-side-by-side" || arg == "hsbs")
                 options.mode = VideoMode::HALF_SIDE_BY_SIDE;
             else
                 ERROR("unknonw video mode: %s", arg.c_str());

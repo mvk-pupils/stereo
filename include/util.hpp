@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 /// Mark a variable as being unused. This can be used to silence warnings.

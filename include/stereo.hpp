@@ -7,6 +7,8 @@
 
 #include <openvr.h>
 
+#include "stereo_export.hpp"
+
 /// A rasterized view of the scene.
 struct View {
   /// The ID of a GL texture that contains the color data of the rendered view.
@@ -74,7 +76,7 @@ class Stereo {
 
   public:
     /// Initialize the library and display a video to the user.
-    static void display_video(VideoDecoder*);
+    static void EXPORT display_video(VideoDecoder*);
 
   private:
     /// Displays a video frame for a specific eye.

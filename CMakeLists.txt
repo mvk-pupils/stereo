@@ -4,6 +4,8 @@ project(stereo)
 set(CMAKE_CXX_STANDARD 11)
 
 option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
+option(STEREO_SHARED_LIBS "Build the library as shared (.dll/.so) instead of static (.lib/.a)" ON)
+
 
 # Set the output directory for build artifacts
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -86,21 +88,19 @@ set(STEREO_LIBRARIES
     ${OpenVR_LIBRARY}
 )
 
-add_library(stereo SHARED ${STEREO_SOURCES})
-add_library(stereo-static STATIC ${STEREO_SOURCES})
+if (STEREO_SHARED_LIBS)
+   add_library(stereo SHARED)
+else()
+   add_library(stereo STATIC)
+endif()
 
+target_sources(stereo PRIVATE ${STEREO_SOURCES})
 add_dependencies(stereo shader_header)
-add_dependencies(stereo-static shader_header)
-
 target_include_directories(stereo ${STEREO_INCLUDES})
-target_include_directories(stereo-static ${STEREO_INCLUDES})
-
 target_link_libraries(stereo ${STEREO_LIBRARIES})
-target_link_libraries(stereo-static ${STEREO_LIBRARIES})
 
 # Set the prefix to use when printing logging information
-target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo")
-target_compile_definitions(stereo-static INTERFACE LOG_SOURCE_MODULE="stereo")
+target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo" MAKEDLL="")
 
 
 # Add example executable directories

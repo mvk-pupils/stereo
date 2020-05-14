@@ -1,5 +1,13 @@
 #include "gl.h"
 
+/// Different stereo video modes.
+enum class VideoMode {
+    /// Full side by side video.
+    SIDE_BY_SIDE,
+    /// Half side by side video (horizontal compression).
+    HALF_SIDE_BY_SIDE,
+};
+
 /// A video frame containing certain auxiliary information.
 struct Frame {
   /// OpenGL texture.
@@ -11,6 +19,9 @@ struct Frame {
   int width = -1;
   /// Height of the texture, in pixels.
   int height = -1;
+
+  /// Stereo video mode of the frame.
+  VideoMode mode;
 };
 
 /// The state of the video player: playing, paused, or in fast forward mode.

@@ -40,7 +40,7 @@ set(STEREO_BIN_INCLUDES
 )
 
 set(STEREO_BIN_LIBRARIES
-    stereo-static
+    stereo
     glfw
     ${Boost_LIBRARIES}
     ${ICONIC_LIBRARIES}

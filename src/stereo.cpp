@@ -49,6 +49,8 @@ void Stereo::display_video(VideoDecoder* decoder) {
   INFO("Using GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
   auto openvr = init_openvr();
+  if (!openvr) return;
+
   unsigned int width = 0, height = 0;
   openvr->GetRecommendedRenderTargetSize(&width, &height);
   DEBUG("Size: %dx%d", width, height);
@@ -72,11 +74,13 @@ void Stereo::display_video(VideoDecoder* decoder) {
   if(error) ERROR("Create Overlay: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
   error = vr::VROverlay()->SetOverlayFlag(overlay, vr::VROverlayFlags::VROverlayFlags_MakeOverlaysInteractiveIfVisible, true);
   if(error) ERROR("Set Overlay Flag: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
-  error = vr::VROverlay()->ShowOverlay(overlay);
-  if(error) ERROR("Show Overlay: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
 
   Frame frame;
   while(true){
+      vr::VREvent_t overlay_event;
+      while (vr::VROverlay()->PollNextOverlayEvent(overlay, &overlay_event, sizeof(vr::VREvent_t))) {
+      }
+
       vr::VRActiveActionSet_t active_set;
       active_set.ulActionSet = playback_set;
       active_set.ulRestrictedToDevice = vr::k_ulInvalidActionHandle;
@@ -124,9 +128,15 @@ void Stereo::display_video(VideoDecoder* decoder) {
 
     stereo.update_hmd_pose();
 
+    float frame_scale = 0.5;
+
+    if (frame.mode == VideoMode::HALF_SIDE_BY_SIDE) {
+        frame_scale = 1.0;
+    }
+
     Viewport base;
     base.texture = frame.texture;
-    base.aspect = 0.5 * float(frame.width) / float(frame.height);
+    base.aspect = frame_scale * float(frame.width) / float(frame.height);
     base.rectangle.left = 0.0f;
     base.rectangle.right = 1.0f;
     base.rectangle.top = 0.0f;

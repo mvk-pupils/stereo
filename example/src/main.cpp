@@ -81,10 +81,14 @@ class VideoStream : public VideoDecoder
   std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
 
     int frame_number;
+    VideoMode video_mode;
 
 public:
-    /// @param video_path pointer to path of video file to be decoded.
-    VideoStream(const char* video_path) {
+    /// @param video_path path of video file to be decoded.
+    /// @param mode stereo mode of the loaded video.
+    VideoStream(const char* video_path, VideoMode mode) {
+        this->video_mode = mode;
+
         this->previous_frame_time = std::chrono::high_resolution_clock::now();
 
         this->playback = Playback::PLAY;
@@ -118,8 +122,9 @@ public:
         auto elapsed_seconds = 1e-9 * (double)elapsed_nanos;
 
         bool bFramesDecoded = false;
+        const float EPSILON = 0.003;
 
-        bool should_render = (this->playback == Playback::PLAY && elapsed_seconds > seconds_per_frame)
+        bool should_render = (this->playback == Playback::PLAY && elapsed_seconds + EPSILON > seconds_per_frame)
             || this->playback == Playback::FFW;
         if (should_render) {
             this->previous_frame_time = now;
@@ -134,6 +139,7 @@ public:
                 frame.width = this->decoder->GetVideoWidth();
                 frame.height = this->decoder->GetVideoHeight();
                 frame.number = this->frame_number;
+                frame.mode = this->video_mode;
                 this->frame_number++;
             }
         }
@@ -165,7 +171,7 @@ int main(int argc, const char *argv[])
   {
     printf("Stereo Example Executable (SEE)\n\n");
 
-    auto video_stream = new VideoStream(arguments.video_path);
+    auto video_stream = new VideoStream(arguments.video_path, arguments.mode);
     Stereo::display_video(video_stream);
 
     printf("Bye\n");

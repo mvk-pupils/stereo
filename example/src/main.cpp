@@ -32,7 +32,7 @@ public:
   /// @param stream_number A number identifying a certainstream. Defaults to 0.
   Canvas(int width, int height, int stream_number = 0) : ImageGLBase(width, height, width, height, true, stream_number, ImageGLBase::PixelFormat::BGRA_PIXEL_FORMAT),
                                                          stream_number(stream_number),
-                                                         window(Window::open(width, height)),
+                                                         window(Window::open(width, height, WindowMode::HIDDEN)),
                                                          width(width),
                                                          height(height)
   {
@@ -80,72 +80,80 @@ class VideoStream : public VideoDecoder
   Playback playback;
   std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
 
+    int frame_number;
+
 public:
-  /// @param video_path pointer to path of video file to be decoded.
-  VideoStream(char *video_path)
-  {
-    this->previous_frame_time = std::chrono::high_resolution_clock::now();
-    this->playback = Playback::PLAY;
-    this->decoder = GpuVideoDecoder::Create();
-    int stream_number = 0;
-    this->decoder->LoadVideo(video_path);
+    /// @param video_path pointer to path of video file to be decoded.
+    VideoStream(const char* video_path) {
+        this->previous_frame_time = std::chrono::high_resolution_clock::now();
 
-    auto width = decoder->GetVideoWidth();
-    auto height = decoder->GetVideoHeight();
-    this->canvas = new Canvas(width, height);
+        this->playback = Playback::PLAY;
+        this->decoder = GpuVideoDecoder::Create();
+        int stream_number = 0;
 
-    this->canvas->ProcessBeforePaint(EOperation::texture | EOperation::pyramid | EOperation::gpuimage);
-    decoder->Start(this->canvas);
-  }
+        // Temporarily allocate a new string, because for <reasons...> `LoadVideo` only accepts `char*` and not `const char*`
+        auto tmp_path = std::string(video_path);
+        this->decoder->LoadVideo(&tmp_path[0]);
 
-  /// Gets a new frame from the video and renders it if enough time has passed since the last frame was rendered.
-  ///
-  /// Inherited from VideoDecoder. Rendering depends on seconds_per_frame, which is specified by @see frame_rate()
-  /// @returns the next frame
-  virtual Frame next_frame() override
-  {
-    double frames_per_second = this->frame_rate();
-    double seconds_per_frame = frames_per_second == 0 ? 0.0 : 1.0 / this->frame_rate();
-    auto now = std::chrono::high_resolution_clock::now();
-    auto elapsed_nanos = (now - this->previous_frame_time).count();
-    auto elapsed_seconds = 1e-9 * (double)elapsed_nanos;
+        int width = decoder->GetVideoWidth();
+        int height = decoder->GetVideoHeight();
+        this->canvas = new Canvas(width, height);
 
-    bool bFramesDecoded = false;
+        this->canvas->ProcessBeforePaint(EOperation::texture | EOperation::pyramid | EOperation::gpuimage);
+        decoder->Start(this->canvas);
 
-    bool should_render = (this->playback == Playback::PLAY && elapsed_seconds > seconds_per_frame) || this->playback == Playback::FFW;
-    if (should_render)
+        this->frame_number = 0;
+    }
+    
+    /// Gets a new frame from the video and renders it if enough time has passed since the last frame was rendered.
+    ///
+    /// Inherited from VideoDecoder. Rendering depends on seconds_per_frame, which is specified by @see frame_rate()
+    /// @returns the next frame
+    virtual Frame next_frame() override
     {
-      this->previous_frame_time = now;
-      decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
+        double frames_per_second = this->frame_rate();
+        double seconds_per_frame = frames_per_second == 0 ? 0.0 : 1.0 / this->frame_rate();
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed_nanos = (now - this->previous_frame_time).count();
+        auto elapsed_seconds = 1e-9 * (double)elapsed_nanos;
+
+        bool bFramesDecoded = false;
+
+        bool should_render = (this->playback == Playback::PLAY && elapsed_seconds > seconds_per_frame)
+            || this->playback == Playback::FFW;
+        if (should_render) {
+            this->previous_frame_time = now;
+            decoder->renderVideoFrame(this->canvas, true, true, bFramesDecoded);
+        }
+
+        Frame frame;
+        if (bFramesDecoded) {
+            spacetime::GpuStreamPtr pStream = spacetime::GpuProcessor::Get(GpuContext::Get())->GetStream(0);
+            if (pStream) {
+                frame.texture = pStream->GetGLTexture(ORIGINAL);
+                frame.width = this->decoder->GetVideoWidth();
+                frame.height = this->decoder->GetVideoHeight();
+                frame.number = this->frame_number;
+                this->frame_number++;
+            }
+        }
+
+        return frame;
     }
 
-    Frame frame;
-    if (bFramesDecoded)
+    /// Sets the playback to one of the given playback options.
+    /// @param playback The playback to switch to. E.g. PLAY, PAUSE, FFW
+    virtual void set_playback(Playback playback) override
     {
-      spacetime::GpuStreamPtr pStream = spacetime::GpuProcessor::Get(GpuContext::Get())->GetStream(0);
-      if (pStream)
-      {
-        frame.texture = pStream->GetGLTexture(ORIGINAL);
-      }
+        this->playback = playback;
     }
 
-    return frame;
-  }
-
-  /// Sets the playback to one of the given playback options.
-  /// @param playback The playback to switch to. E.g. PLAY, PAUSE, FFW
-  virtual void set_playback(Playback playback) override
-  {
-    this->playback = playback;
-  }
-
-  /// Gets the frame rate.
-  /// @return The frame rate in frames per second.
-  virtual double frame_rate() override
-  {
-    auto seconds_per_frame = this->decoder->GetFrameRate();
-    return seconds_per_frame == 0 ? 0 : 1.0 / seconds_per_frame;
-  }
+    virtual double frame_rate() override
+    {
+        // FIXME: despite what the documentation says `GetFrameRate` actually returns seconds per frame.
+        auto seconds_per_frame = this->decoder->GetFrameRate();
+        return seconds_per_frame == 0 ? 0 : 1.0 / seconds_per_frame;
+    }
 };
 
 /// Provides an example of how to use the DLL.
@@ -157,7 +165,7 @@ int main(int argc, const char *argv[])
   {
     printf("Stereo Example Executable (SEE)\n\n");
 
-    auto video_stream = new VideoStream("img/roller_coaster.mp4");
+    auto video_stream = new VideoStream(arguments.video_path);
     Stereo::display_video(video_stream);
 
     printf("Bye\n");

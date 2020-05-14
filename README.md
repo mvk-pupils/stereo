@@ -3,7 +3,17 @@
 
 [![Build Status](https://travis-ci.org/mvk-pupils/stereo.svg?branch=master)](https://travis-ci.org/mvk-pupils/stereo)
 
-## Building from Source
+## Building the Library
+
+
+### Dependencies
+
+- OpenGL
+- GLEW
+- OpenVR
+
+
+### Using CMake
 
 ```
 $ mkdir build
@@ -12,46 +22,47 @@ $ cmake ..
 $ cmake --build .
 ```
 
-
-### Disabling Doxygen
-
-If you don't want to build the documentation run cmake with:
-
-```
-$ cmake .. -D BUILD_DOCUMENTATION=OFF
-```
+> Note: if you are using vcpkg, remember to specify the `-DCMAKE_TOOLCHAIN_FILE`
+> flag to point to your [vcpkg bulid system](https://github.com/Microsoft/vcpkg#quick-start).
 
 
-### Run executable
+## Building Documentation with Doxygen
 
-#### Windows
+### Dependencies
 
-```
-$ cd Debug
-$ ./stereo-world.exe
-```
+- Doxygen - used to build the documentation.
 
-#### Unix
+
+### Using CMake
+
+You can build the documentation by running
 
 ```
-./stereo-world
+$ mkdir build
+$ cd build
+$ cmake .. -D BUILD_DOCUMENTATION=ON
 ```
 
 
-## Building the executable (Windows)
+## Building the example executable (Windows only)
 
-The executable depends on ICONIC Vision's proprietary library
-which neeeds to be built beforehand. Refer to the instructions
-in their documentation. 
+### Dependencies
 
-1. Set the `ICONICPATH` environment variable to the path of 
-   the library source.
+- GLFW - used to create an OpenGL context.
+- I-CONIC Vision Video Decoder (proprietary) - used to decode video files.
 
-2. Run cmake using `cmake <source_directory> -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake`
-   where `source_directory` is the root of this repository and `<path_to_vcpkg>` 
-   is the path to the vcpkg installation directory, eg: `C:/Users/<your_username>/vcpkg/scripts/buildsystems/vcpkg.cmake`
 
-3. Build the solution using your preferred build system (eg. `cmake --build .`).
+### Using CMake
 
-4. At this point there may be some DLLs missing from the build directory. 
-   Copy these from where you built ICONIC's library next to the executable.
+The executable depends on ICONIC Vision's proprietary library which neeeds to be
+built beforehand. Refer to the instructions in their documentation. 
+
+Set the `ICONICPATH` environment variable to the path of the library source for
+ICONIC's library.
+
+```
+$ mkdir build
+$ cd build
+$ cmake ..
+$ cmake --build . --target stereo-world
+```

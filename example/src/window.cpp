@@ -7,7 +7,7 @@ Window::Window() {
 	this->state = std::make_shared<WindowState>(WindowState());
 }
 
-Window Window::open(int width, int height) {
+Window Window::open(int width, int height, WindowMode mode) {
   if (!glfwInit()) {
     throw 1;
   }
@@ -20,7 +20,10 @@ Window Window::open(int width, int height) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-  glfwWindowHint(GLFW_SAMPLES, 8);
+  auto visible = mode == WindowMode::HIDDEN ? GLFW_FALSE : GLFW_TRUE;
+  glfwWindowHint(GLFW_VISIBLE, visible);
+
+  glfwWindowHint(GLFW_SAMPLES, 0);
 
   window.handle = glfwCreateWindow(width, height, "Stereo Example Executable", NULL, NULL);
   glfwSwapInterval(0);

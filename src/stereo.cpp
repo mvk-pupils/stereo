@@ -25,6 +25,7 @@ vr::IVRSystem* init_openvr() {
     return openvr;
 }
 
+/// Gets the path to the current executable
 std::string get_executable_dir() {
     const auto MAX_SIZE = 1024;
     char raw_executable_path[MAX_SIZE] = { 0 };
@@ -50,7 +51,8 @@ void Stereo::display_video(VideoDecoder* decoder) {
   auto openvr = init_openvr();
   unsigned int width = 0, height = 0;
   openvr->GetRecommendedRenderTargetSize(&width, &height);
-  auto stereo = Stereo(width, height, decoder, openvr);
+  DEBUG("Size: %dx%d", width, height);
+  auto stereo = Stereo(2 * width, 2 * height, decoder, openvr);
 
   auto executable_dir = get_executable_dir();
   auto action_path = executable_dir + "\\actions.json";
@@ -65,6 +67,13 @@ void Stereo::display_video(VideoDecoder* decoder) {
   vr::VRActionSetHandle_t playback_set;
   vr::VRInput()->GetActionSetHandle("/actions/playback", &playback_set);
 
+  vr::VROverlayHandle_t overlay;
+  auto error = vr::VROverlay()->CreateOverlay("stereo-overlay", "Stereo Overlay", &overlay);
+  if(error) ERROR("Create Overlay: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
+  error = vr::VROverlay()->SetOverlayFlag(overlay, vr::VROverlayFlags::VROverlayFlags_MakeOverlaysInteractiveIfVisible, true);
+  if(error) ERROR("Set Overlay Flag: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
+  error = vr::VROverlay()->ShowOverlay(overlay);
+  if(error) ERROR("Show Overlay: %s", vr::VROverlay()->GetOverlayErrorNameFromEnum(error));
 
   Frame frame;
   while(true){
@@ -113,10 +122,11 @@ void Stereo::display_video(VideoDecoder* decoder) {
       frame = next_frame;
     }
 
+    stereo.update_hmd_pose();
+
     Viewport base;
     base.texture = frame.texture;
-    base.width = width / 2;
-    base.height = height;
+    base.aspect = 0.5 * float(frame.width) / float(frame.height);
     base.rectangle.left = 0.0f;
     base.rectangle.right = 1.0f;
     base.rectangle.top = 0.0f;
@@ -127,27 +137,56 @@ void Stereo::display_video(VideoDecoder* decoder) {
     viewport.left.rectangle.right = 0.5f;
     viewport.right = base;
     viewport.right.rectangle.left = 0.5f;
+
     stereo.draw(viewport);
   }
 }
 
 Stereo::Stereo(int width, int height, VideoDecoder* decoder, vr::IVRSystem* openvr) :
   program(Program::compile(shader_vert, shader_frag)),
-  left(Framebuffer::create(width / 2, height)),
-  right(Framebuffer::create(width / 2, height)),
+  left(Framebuffer::create(width, height)),
+  right(Framebuffer::create(width, height)),
   openvr(openvr),
   decoder(decoder)
 {
+    this->locations.eye = this->program.get_location("eye");
+    this->locations.proj = this->program.get_location("proj");
+    this->locations.view = this->program.get_location("view");
+}
+
+void openvr34_to_opengl_matrix(vr::HmdMatrix34_t vr, float* gl) {
+    float matrix[16] = {
+        vr.m[0][0], vr.m[1][0], vr.m[2][0], 0.0f,
+        vr.m[0][1], vr.m[1][1], vr.m[2][1], 0.0f,
+        vr.m[0][2], vr.m[1][2], vr.m[2][2], 0.0f,
+        vr.m[0][3], vr.m[1][3], vr.m[2][3], 1.0f,
+    };
+
+    memcpy(gl, matrix, sizeof(matrix));
+}
+
+void Stereo::update_hmd_pose() {
+    vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
+    vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+
+    auto pose = poses[vr::k_unTrackedDeviceIndex_Hmd];
+    if (pose.bPoseIsValid) {
+        openvr34_to_opengl_matrix(pose.mDeviceToAbsoluteTracking, this->hmd_transformation);
+    }
 }
 
 StereoView Stereo::draw(StereoViewport viewport) {
   this->program.use();
 
+  glUniformMatrix4fv(this->locations.view, 1, false, this->hmd_transformation);
+
+
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
   // Left eye
   this->left.bind();
 
   glViewport(0, 0, this->left.width(), this->left.height());
-  glClearColor(0.77f, 0.62f, 0.78f, 1.0f);
   this->render_scene(viewport.left, vr::Eye_Left);
 
   this->left.unbind();
@@ -157,40 +196,18 @@ StereoView Stereo::draw(StereoViewport viewport) {
   this->right.bind();
 
   glViewport(0, 0, this->right.width(), this->right.height());
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   this->render_scene(viewport.right, vr::Eye_Right);
 
   this->right.unbind();
-
-
-  // Blit to screen
-  this->left.bind(GL_READ_FRAMEBUFFER);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBlitFramebuffer(
-      0, 0, this->left.width(), this->left.height(),
-      0, 0, this->left.width(), this->left.height(),
-      GL_COLOR_BUFFER_BIT, GL_LINEAR
-    );
-
-  this->right.bind(GL_READ_FRAMEBUFFER);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBlitFramebuffer(
-      0, 0, this->right.width(), this->right.height(),
-      this->left.width(), 0, this->right.width(), this->right.height(),
-      GL_COLOR_BUFFER_BIT, GL_LINEAR
-    );
 
   StereoView view;
   view.left.texture = this->left.get_color_texture();
   view.right.texture = this->right.get_color_texture();
 
-
   // Display to the vr headset
   if (this->openvr) {
       vr::Texture_t left = { (void*)(uintptr_t)view.left.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
       vr::Texture_t right = { (void*)(uintptr_t)view.right.texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-
-      vr::VRCompositor()->WaitGetPoses(nullptr, 0, nullptr, 0);
 
       vr::VRCompositor()->Submit(vr::Eye_Left, &left);
       vr::VRCompositor()->Submit(vr::Eye_Right, &right);
@@ -203,15 +220,24 @@ void Stereo::render_scene(Viewport viewport, vr::Hmd_Eye eye) {
     glClear(GL_COLOR_BUFFER_BIT);
     ScissorRectangle r = viewport.rectangle;
 
-    float width = 1.0;
-    float height = 1.0;
+    float width = 1.5;
+    float height = 1.5;
 
-    float left = -0.5;
-    float top = 0.33;
-    float right = left + width;
-    float bottom = top - height;
+    if (viewport.aspect > 1.0) {
+        height /= viewport.aspect;
+    } else {
+        width *= viewport.aspect;
+    }
 
-    float depth = 0.8;
+    float x = 0.0;
+    float y = 1.2;
+
+    float left = x - width / 2.0;
+    float right = x + width / 2.0;
+    float bottom = y - height / 2.0;
+    float top = y + height / 2.0;
+
+    float depth = 1.5;
 
     Vertex vertices[] = {
         {{left, top, -depth}, {1,1,1,1}, {r.left, r.top}},
@@ -227,21 +253,13 @@ void Stereo::render_scene(Viewport viewport, vr::Hmd_Eye eye) {
         2, 3, 0
     };
 
-    auto eth = this->openvr->GetEyeToHeadTransform(eye);
-    float view_matrix[16] = {
-        eth.m[0][0], eth.m[1][0], eth.m[2][0], 0.0f,
-        eth.m[0][1], eth.m[1][1], eth.m[2][1], 0.0f,
-        eth.m[0][2], eth.m[1][2], eth.m[2][2], 0.0f,
-        eth.m[0][3], eth.m[1][3], eth.m[2][3], 1.0f,
-    };
+    float eye_matrix[16];
+    openvr34_to_opengl_matrix(this->openvr->GetEyeToHeadTransform(eye), eye_matrix);
+    glUniformMatrix4fv(this->locations.eye, 1, false, eye_matrix);
 
     auto projection_matrix = this->openvr->GetProjectionMatrix(eye, 0.1, 5.0);
+    glUniformMatrix4fv(this->locations.proj, 1, false, &projection_matrix.m[0][0]);
 
-    auto eye_location = this->program.get_location("eye");
-    glUniformMatrix4fv(eye_location, 1, false, view_matrix);
-
-    auto proj_location = this->program.get_location("proj");
-    glUniformMatrix4fv(proj_location, 1, false, &projection_matrix.m[0][0]);
 
     Mesh mesh = Mesh::create();
     mesh.set_vertices(4, vertices);

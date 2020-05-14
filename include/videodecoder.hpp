@@ -5,10 +5,12 @@ struct Frame {
   /// OpenGL texture.
   GLuint texture = 0;
   /// Frame index.
-  int number;
+  int number = -1;
 
-  int width;
-  int height;
+  /// Width of the texture, in pixels.
+  int width = -1;
+  /// Height of the texture, in pixels.
+  int height = -1;
 };
 
 /// The state of the video player: playing, paused, or in fast forward mode.
@@ -30,5 +32,4 @@ public:
 
   /// Returns the number of frames per second.
   virtual double frame_rate() = 0;
-
 };

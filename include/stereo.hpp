@@ -2,7 +2,6 @@
 
 #include "shader.hpp"
 #include "mesh.hpp"
-#include "texture.hpp"
 #include "framebuffer.hpp"
 #include "videodecoder.hpp"
 
@@ -27,18 +26,24 @@ struct ScissorRectangle {
 
 /// The position and size of a viewport (an eye).
 struct Viewport {
-  /// The width and height of the resulting rendered view.
-  GLuint width, height;
-  /// The texture (a frame of video) to display.
-  GLuint texture;
-  /// The subsection of the frame to display.
-  ScissorRectangle rectangle;
+    /// The texture (a frame of video) to display.
+    GLuint texture;
+    /// Aspect ratio of the texture. (width / height)
+    float aspect;
+    /// The subsection of the frame to display.
+    ScissorRectangle rectangle;
 };
 
 /// The position and size of the eyes/cameras.
 struct StereoViewport {
   Viewport left;
   Viewport right;
+};
+
+struct UniformLocations {
+    GLuint eye;
+    GLuint proj;
+    GLuint view;
 };
 
 /// Main entry point for the stereo display.
@@ -61,6 +66,12 @@ class Stereo {
     /// Framebuffer for the right eye.
     Framebuffer right;
 
+    /// Transformation matrix for the VR headset in the world.
+    float hmd_transformation[16];
+
+    /// GLSL shader binding points for all uniforms
+    UniformLocations locations;
+
   public:
     /// Initialize the library and display a video to the user.
     static void display_video(VideoDecoder*);
@@ -68,6 +79,9 @@ class Stereo {
   private:
     /// Displays a video frame for a specific eye.
     void render_scene(Viewport viewport, vr::Hmd_Eye eye);
+
+    /// Update the position of the headeset within the world.
+    void update_hmd_pose();
 
     /// Draw the stereo display.
     /// @param viewport How to render each eye.

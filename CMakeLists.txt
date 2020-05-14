@@ -5,32 +5,11 @@ set(CMAKE_CXX_STANDARD 11)
 
 option(BUILD_DOCUMENTATION "Bulid the documentation with Doxygen" OFF)
 
-
+# Set the output directory for build artifacts
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-# Pull down submodules
-find_package(Git QUIET)
-if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-# Update submodules as needed
-    option(GIT_SUBMODULE "Check submodules during build" ON)
-    if(GIT_SUBMODULE)
-        message(STATUS "Submodule update")
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
-        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-        endif()
-    endif()
-endif()
-
-
-# Try to guess the platform architecture.
-if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-    set(PLATFORM 64)
-else()
-    set(PLATFORM 32)
-endif()
+# Set the path to CMake scripts used for finding packages.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 
 
 # Build the documentation
@@ -60,38 +39,13 @@ endif (BUILD_DOCUMENTATION)
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
-
 # GLEW
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
-
 # OpenVR
-if(WIN32)
-    set(WINDOWS_PATH_SUFFIXES win${PLATFORM} Win${PLATFORM} x${PLATFORM})
-endif()
+find_package(OpenVR REQUIRED)
 
-find_library(OPENVR_LIBRARY
-    NAMES
-        openvr_api OpenVR
-    PATHS
-        libs/openvr/bin
-        libs/openvr/lib
-    PATH_SUFFIXES
-        osx64
-        linux64
-        ${WINDOWS_PATH_SUFFIXES}
-    NO_DEFAULT_PATH
-    NO_CMAKE_FIND_ROOT_PATH
-)
-set(OPENVR_INCLUDE_DIR libs/openvr/headers)
-
-
-# Resources
-file(
-    COPY ${CMAKE_CURRENT_SOURCE_DIR}/img
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-)
 
 # Shader Source
 add_executable(shader_embedder src/tools/shaderembedder.cpp)
@@ -102,17 +56,17 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment_shader.frag frag
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex_shader.vert vert
     DEPENDS shader_embedder
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment_shader.frag
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex_shader.vert
     COMMENT "Generating shader header..."
 )
 add_custom_target(shader_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/shadersource.hpp)
 
 # Stereo Library
 set(STEREO_SOURCES
-    src/stb_image.cpp
     src/stereo.cpp
     src/shader.cpp
     src/mesh.cpp
-    src/texture.cpp
     src/framebuffer.cpp
 )
 
@@ -129,7 +83,7 @@ set(STEREO_INCLUDES
 set(STEREO_LIBRARIES
     ${GLEW_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${OPENVR_LIBRARY}
+    ${OpenVR_LIBRARY}
 )
 
 add_library(stereo SHARED ${STEREO_SOURCES})
@@ -144,39 +98,23 @@ target_include_directories(stereo-static ${STEREO_INCLUDES})
 target_link_libraries(stereo ${STEREO_LIBRARIES})
 target_link_libraries(stereo-static ${STEREO_LIBRARIES})
 
+# Set the prefix to use when printing logging information
 target_compile_definitions(stereo INTERFACE LOG_SOURCE_MODULE="stereo")
+target_compile_definitions(stereo-static INTERFACE LOG_SOURCE_MODULE="stereo")
 
 
 # Add example executable directories
 add_subdirectory(example)
-target_compile_definitions(stereo PRIVATE LOG_SOURCE_MODULE="stereo-world")
 
-if(WIN32)
-    set(OPENVR_DLL "${PROJECT_SOURCE_DIR}/libs/openvr/bin/win64/openvr_api.dll")
-	message("Copying ${OPENVR_DLL} to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    file(
-        COPY ${OPENVR_DLL}
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    )
-endif()
 
-file (
-  COPY "${PROJECT_SOURCE_DIR}/actions.json"
-  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+add_custom_command ( TARGET stereo POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${PROJECT_SOURCE_DIR}/actions.json"
+        $<TARGET_FILE_DIR:stereo>
 )
 
-file (
-  COPY "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
-  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+add_custom_command ( TARGET stereo POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${PROJECT_SOURCE_DIR}/gamepad_bindings.json"
+        $<TARGET_FILE_DIR:stereo>
 )
-
-# Enable all warnings and treat them as errors
-if(MSVC)
-    set(WARNING_FLAGS PRIVATE)
-else()
-    set(WARNING_FLAGS PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
-
-target_compile_options(stereo ${WARNING_FLAGS})
-target_compile_options(stereo-static ${WARNING_FLAGS})
-target_compile_options(stereo-world ${WARNING_FLAGS})

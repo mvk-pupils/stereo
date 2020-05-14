@@ -1,27 +1,39 @@
 #include "gl.h"
 
+/// A video frame containing certain auxiliary information.
 struct Frame {
+  /// OpenGL texture.
+  GLuint texture = 0;
+  /// Frame index.
+  int number = -1;
 
-  GLuint texture = 0; //OpenGL texture
-  int number = -1; //frame index
+  /// Width of the texture, in pixels.
   int width = -1;
+  /// Height of the texture, in pixels.
   int height = -1;
-
 };
 
+/// The state of the video player: playing, paused, or in fast forward mode.
 enum class Playback {
-    PLAY, PAUSE, FFW
+  PLAY, PAUSE, FFW
 };
 
-class VideoDecoder{
+/// Represents the application of a video decoder to a specific video file.
+/// Provided by the user and passed to the stereo library.
+/// @see Stereo.display_video().
+class VideoDecoder {
 public:
 
+  /// Returns the frame after the current one.
+  /// If there is no next frame, a Frame object with `texture` set to 0 should be returned.
   virtual Frame next_frame() = 0;
 
   virtual void set_playback(Playback) = 0;
 
+  /// Returns the number of frames in the whole video.
   virtual int total_frames() = 0;
 
+  /// Returns the number of frames per second.
   virtual double frame_rate() = 0;
 
 };

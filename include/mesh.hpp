@@ -20,7 +20,7 @@ class Mesh {
     /// Construct an empty mesh.
     Mesh();
 
-    /// Handle to the OpenGL Vertex Array Object (VAO). 
+    /// Handle to the OpenGL Vertex Array Object (VAO).
     /// Automatically cleans up any resources upon destruction.
     std::shared_ptr<GLuint> vertex_array;
 
